@@ -1,12 +1,20 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { MatSidenavModule, MatExpansionModule, MatTabsModule } from '@angular/material';
+import {
+  MatSidenavModule,
+  MatExpansionModule,
+  MatTabsModule,
+  MatCardModule,
+  MatListModule,
+} from '@angular/material';
 
 const MaterialModules = [
   MatSidenavModule,
   MatExpansionModule,
-  MatTabsModule
+  MatTabsModule,
+  MatCardModule,
+  MatListModule,
 ];
 
 @NgModule({

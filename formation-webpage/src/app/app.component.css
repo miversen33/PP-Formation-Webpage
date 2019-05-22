@@ -11,6 +11,7 @@ mat-sidenav-container{
     height: 100vh;
     width: 100%;
     display: flex;
+    position: relative;
     flex-direction: column;
 }
 
@@ -23,17 +24,24 @@ mat-sidenav-container{
 }
 
 .positionBarToggle{
+    position: absolute;
+    top: 50%;
+    left: 0%;
+}
 
+.detailBarToggle{
+    position: absolute;
+    top: 50%;
+    right: 0%;
 }
 
 .field{
-    height:95%;
+    height: 95%;
     width: 100%;
 }
 
 .validateButton{
     padding: 0;
-    /* max-width: 18%; */
 }
 
 .validateButtonTitle{
@@ -65,5 +73,5 @@ mat-sidenav-container{
 }
 
 .detailTabs{
-
+    
 }

@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { PositionsService } from './services/positions.service'; 
 
 @Component({
   selector: 'app-root',
@@ -10,6 +11,10 @@ export class AppComponent {
   detailButtonToggle = '>';
   detailBarOpen = true;
   version = '0.0.1';
+
+  constructor(private positionService: PositionsService){
+    this.positionService = positionService;
+  }
 
   onPositionBarClose(): void {
     this.positionButtonToggle = '>';
@@ -25,5 +30,17 @@ export class AppComponent {
 
   onDetailBarOpen(): void {
       this.detailButtonToggle = '>';
+  }
+
+  getOffensivePlayers() {
+    return this.positionService.getOffensivePositions();
+  }
+
+  getDefensivePlayers() {
+    return this.positionService.getDefensivePositions();
+  }
+
+  getSpecialTeamsPlayers() {
+    return this.positionService.getSpecialTeamsPositions();
   }
 }
