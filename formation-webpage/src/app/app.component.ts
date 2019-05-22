@@ -6,5 +6,24 @@ import { Component } from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'formation-webpage';
+  positionButtonToggle = '<';
+  detailButtonToggle = '>';
+  detailBarOpen = true;
+  version = '0.0.1';
+
+  onPositionBarClose(): void {
+    this.positionButtonToggle = '>';
+  }
+
+  onPositionBarOpen(): void {
+      this.positionButtonToggle = '<';
+  }
+
+  onDetailBarClose(): void {
+    this.detailButtonToggle = '<';
+  }
+
+  onDetailBarOpen(): void {
+      this.detailButtonToggle = '>';
+  }
 }
