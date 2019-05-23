@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { PositionsService } from './services/positions.service'; 
+import { MatListItem } from '@angular/material';
 
 @Component({
   selector: 'app-root',
@@ -7,8 +8,8 @@ import { PositionsService } from './services/positions.service';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  positionButtonToggle = '<';
-  detailButtonToggle = '>';
+  positionButtonToggle = '>';
+  detailButtonToggle = '<';
   detailBarOpen = true;
   version = '0.0.1';
 
@@ -42,5 +43,9 @@ export class AppComponent {
 
   getSpecialTeamsPlayers() {
     return this.positionService.getSpecialTeamsPositions();
+  }
+
+  handlePositionClick(position: MatListItem) {
+    console.log(position);
   }
 }
