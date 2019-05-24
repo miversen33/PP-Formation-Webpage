@@ -1,19 +1,34 @@
-import { Component } from '@angular/core';
-import { PositionsService } from './services/positions.service'; 
+import { Component, ComponentFactoryResolver, ViewChild, ViewContainerRef, ComponentRef } from '@angular/core';
+import { PositionsService } from './services/positions.service';
 import { MatListItem } from '@angular/material';
+import { Position } from './position/position';
+import { DisplaypositionComponent } from './position/displayposition/displayposition.component';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
 })
+/**
+ * TODO
+ * MoveEvents that leave the entire browser screen cause the mouse event tracking
+ * to act kinda funny (the event registers that you are still in the screen,
+ * even though you're not)
+ */
+
 export class AppComponent {
   positionButtonToggle = '>';
   detailButtonToggle = '<';
   detailBarOpen = true;
   version = '0.0.1';
+  isMouseDown = false;
 
-  constructor(private positionService: PositionsService){
+  holdPositionComponentRef: ComponentRef<DisplaypositionComponent> = null;
+  holdPosition: DisplaypositionComponent = null;
+
+  @ViewChild('field', { read: ViewContainerRef}) field: ViewContainerRef;
+
+  constructor(private positionService: PositionsService, private componentFactoryResolver: ComponentFactoryResolver) {
     this.positionService = positionService;
   }
 
@@ -47,5 +62,42 @@ export class AppComponent {
 
   handlePositionClick(position: MatListItem) {
     console.log(position);
+  }
+
+  mousemove(event: MouseEvent) {
+    if (!this.isMouseDown) {
+      return;
+    }
+    if (this.holdPositionComponentRef === null) {
+      return;
+    }
+    this.holdPositionComponentRef.location.nativeElement.offsetTop = 50;
+    console.log(this.holdPositionComponentRef.location.nativeElement.offsetTop);
+    // console.log('Tracking Mouse Movement (' + event.x + ',' + event.y + ')');
+  }
+
+  mousedown(position: Position) {
+    this.isMouseDown = true;
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(DisplaypositionComponent);
+    this.holdPositionComponentRef = this.field.createComponent(componentFactory);
+    this.holdPosition = this.holdPositionComponentRef.instance;
+    this.holdPosition.setPosition(position);
+  }
+
+  mouseup(mouseX: number, mouseY: number, fieldRect: DOMRect) {
+    this.isMouseDown = false;
+    if (this.holdPositionComponentRef == null || fieldRect === undefined) {
+      return;
+    }
+    if (((mouseX < fieldRect.right) &&
+         (mouseX > fieldRect.left)) &&
+        ((mouseY < fieldRect.bottom) &&
+         (mouseY > fieldRect.top))) {
+          // console.log('Mouse Up in field');
+    } else {
+      this.holdPositionComponentRef.destroy();
+      this.holdPositionComponentRef = null;
+      this.holdPosition = null;
+    }
   }
 }
