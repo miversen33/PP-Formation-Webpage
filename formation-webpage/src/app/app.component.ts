@@ -1,8 +1,9 @@
-import { Component, ComponentFactoryResolver, ViewChild, ViewContainerRef, ComponentRef } from '@angular/core';
+import { Component, ComponentFactoryResolver, ViewChild, ViewContainerRef, ComponentRef, Renderer, OnInit } from '@angular/core';
 import { PositionsService } from './services/positions.service';
-import { MatListItem } from '@angular/material';
 import { Position } from './position/position';
 import { DisplaypositionComponent } from './position/displayposition/displayposition.component';
+
+import { trigger, transition} from '@angular/animations';
 
 @Component({
   selector: 'app-root',
@@ -16,19 +17,28 @@ import { DisplaypositionComponent } from './position/displayposition/displayposi
  * even though you're not)
  */
 
-export class AppComponent {
+export class AppComponent implements OnInit {
   positionButtonToggle = '>';
   detailButtonToggle = '<';
   detailBarOpen = true;
   version = '0.0.1';
   isMouseDown = false;
+  document;
 
   holdPositionComponentRef: ComponentRef<DisplaypositionComponent> = null;
+  holdPositionElement;
   holdPosition: DisplaypositionComponent = null;
+
 
   @ViewChild('field', { read: ViewContainerRef}) field: ViewContainerRef;
 
-  constructor(private positionService: PositionsService, private componentFactoryResolver: ComponentFactoryResolver) {
+  ngOnInit(): void {
+    this.document = document;
+  }
+
+  constructor(
+    private positionService: PositionsService,
+    private componentFactoryResolver: ComponentFactoryResolver ) {
     this.positionService = positionService;
   }
 
@@ -71,9 +81,6 @@ export class AppComponent {
     if (this.holdPositionComponentRef === null) {
       return;
     }
-    this.holdPositionComponentRef.location.nativeElement.offsetTop = 50;
-    console.log(this.holdPositionComponentRef.location.nativeElement.offsetTop);
-    // console.log('Tracking Mouse Movement (' + event.x + ',' + event.y + ')');
   }
 
   mousedown(position: Position) {
