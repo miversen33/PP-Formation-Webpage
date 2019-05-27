@@ -69,12 +69,12 @@
         </div>
       </mat-sidenav-content>
       <mat-sidenav #detailNavBar class="detailNavBar"
-        opened=true mode="side" position="end"
+        opened={{detailBarOpen}} mode="side" position="end"
         (openedStart)="onDetailBarOpen()" (closedStart)="onDetailBarClose()">
         <div class="propertiesBar">
-          <p>
-            Properties
-          </p>
+          <h2>
+            {{selectedPosition.name}} Properties
+          </h2>
         </div>
       </mat-sidenav>
     </mat-sidenav-container>

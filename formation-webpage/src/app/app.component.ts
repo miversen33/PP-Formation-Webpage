@@ -13,13 +13,17 @@ import { QueryList } from '@angular/core/src/render3/query';
 export class AppComponent {
   positionButtonToggle = '>';
   detailButtonToggle = '<';
-  detailBarOpen = true;
+  detailBarOpen = false;
   version = '0.0.1';
   isMouseDown = false;
+
+  selectedPosition: Position = { id: 0, name: '', abbreviatedName: '', side: '', timestamp: ''};
 
   holdPositionComponentRef: ComponentRef<DisplaypositionComponent> = null;
   holdPositionElement: HTMLElement;
   holdPosition: DisplaypositionComponent = null;
+
+  positions: Map<string, HTMLElement> = new Map();
 
   @ViewChild('main', { read: ViewContainerRef}) main: ViewContainerRef;
   @ViewChild('field', { read: ViewContainerRef}) field: ViewContainerRef;
@@ -79,11 +83,16 @@ export class AppComponent {
 
   mousedown(event: MouseEvent, position: Position) {
     this.isMouseDown = true;
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(DisplaypositionComponent);
-    this.holdPositionComponentRef = this.main.createComponent(componentFactory);
-    this.holdPositionComponentRef.instance.position = position;
 
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(DisplaypositionComponent);
+
+    this.holdPositionComponentRef = this.main.createComponent(componentFactory);
+    this.holdPosition = this.holdPositionComponentRef.instance;
     this.holdPositionElement = this.holdPositionComponentRef.location.nativeElement;
+
+    const timestamp = this.holdPositionComponentRef.instance.setPosition(position);
+    this.positions.set(timestamp, this.holdPositionElement);
+
     this.holdPositionElement.style.zIndex = '1';
     this.holdPositionElement.style.position = 'absolute';
     this.holdPositionElement.addEventListener('mouseup', this.mouseup.bind(this));
@@ -91,8 +100,6 @@ export class AppComponent {
     this.holdPositionComponentRef.instance.selected.subscribe((p: Position) => {
       this.handleFieldPositionSelected(p);
     });
-
-    this.holdPosition = this.holdPositionComponentRef.instance;
 
     this.moveHoldPositionElement(event.clientX, event.clientY);
   }
@@ -125,10 +132,17 @@ export class AppComponent {
   }
 
   handleFieldPositionSelected(position: Position) {
-    console.log(position);
+    if (this.selectedPosition.id !== 0) {
+      console.log('Changing shit');
+      this.positions.get(this.selectedPosition.timestamp).style.borderColor = 'yellow';
+    }
+    this.selectedPosition = position;
+    this.detailBarOpen = true;
+    const positionElement = this.positions.get(position.timestamp);
+    positionElement.style.borderColor = 'yellow';
   }
 
   placePositionOnField() {
-
+    this.handleFieldPositionSelected(this.holdPosition.position);
   }
 }
