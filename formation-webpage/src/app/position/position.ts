@@ -3,5 +3,4 @@ export class Position {
   name: string;
   abbreviatedName: string;
   side: string;
-  timestamp = '';
 }

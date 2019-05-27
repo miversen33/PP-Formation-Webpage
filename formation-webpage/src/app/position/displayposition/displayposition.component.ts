@@ -21,10 +21,4 @@ export class DisplaypositionComponent implements OnInit {
   ngOnInit() {
   }
 
-  setPosition(position: Position): string {
-    this.position = position;
-    this.position.timestamp = Date.parse(new Date().toString()).toString();
-    return this.position.timestamp;
-  }
-
 }

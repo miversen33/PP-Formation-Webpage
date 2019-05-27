@@ -16,14 +16,15 @@ export class AppComponent {
   detailBarOpen = false;
   version = '0.0.2';
   isMouseDown = false;
+  incrementedId = 100;
 
-  selectedPosition: Position = { id: 0, name: '', abbreviatedName: '', side: '', timestamp: ''};
+  selectedPosition: Position = { id: 0, name: '', abbreviatedName: '', side: ''};
 
   holdPositionComponentRef: ComponentRef<DisplaypositionComponent> = null;
   selectedPositionElement: HTMLElement;
   holdPosition: DisplaypositionComponent = null;
 
-  positions: Map<string, HTMLElement> = new Map();
+  positions: Map<number, HTMLElement> = new Map();
 
   @ViewChild('main', { read: ViewContainerRef}) main: ViewContainerRef;
   @ViewChild('field', { read: ViewContainerRef}) field: ViewContainerRef;
@@ -84,14 +85,16 @@ export class AppComponent {
   mousedown(event: MouseEvent, position: Position) {
     this.isMouseDown = true;
 
+    const pCopy: Position = { id: this.incrementedId, name: position.name, abbreviatedName: position.abbreviatedName, side: position.side};
+    this.incrementedId ++;
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(DisplaypositionComponent);
 
     this.holdPositionComponentRef = this.main.createComponent(componentFactory);
     this.holdPosition = this.holdPositionComponentRef.instance;
+    this.holdPosition.position = pCopy;
     this.selectedPositionElement = this.holdPositionComponentRef.location.nativeElement;
 
-    const timestamp = this.holdPositionComponentRef.instance.setPosition(position);
-    this.positions.set(timestamp, this.selectedPositionElement);
+    this.positions.set(this.holdPosition.position.id, this.selectedPositionElement);
 
     this.selectedPositionElement.style.zIndex = '1';
     this.selectedPositionElement.style.position = 'absolute';
@@ -132,16 +135,15 @@ export class AppComponent {
   }
 
   handleFieldPositionSelected(position: Position) {
-    console.log(position.timestamp);
     this.isMouseDown = true;
     if (this.selectedPosition.id !== 0) {
-      this.positions.get(this.selectedPosition.timestamp).style.backgroundColor = 'white';
+      // this.positions.get(this.selectedPosition.timestamp).style.backgroundColor = 'white';
     }
     this.selectedPosition = position;
     this.detailBarOpen = true;
-    this.selectedPositionElement = this.positions.get(position.timestamp);
+    this.selectedPositionElement = this.positions.get(position.id);
 
-    this.selectedPositionElement.style.backgroundColor = 'yellow';
+    // this.selectedPositionElement.style.backgroundColor = 'yellow';
   }
 
   placePositionOnField() {
