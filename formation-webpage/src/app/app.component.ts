@@ -14,13 +14,13 @@ export class AppComponent {
   positionButtonToggle = '>';
   detailButtonToggle = '<';
   detailBarOpen = false;
-  version = '0.0.1';
+  version = '0.0.2';
   isMouseDown = false;
 
   selectedPosition: Position = { id: 0, name: '', abbreviatedName: '', side: '', timestamp: ''};
 
   holdPositionComponentRef: ComponentRef<DisplaypositionComponent> = null;
-  holdPositionElement: HTMLElement;
+  selectedPositionElement: HTMLElement;
   holdPosition: DisplaypositionComponent = null;
 
   positions: Map<string, HTMLElement> = new Map();
@@ -39,18 +39,18 @@ export class AppComponent {
   }
 
   handleMouseMove(event: MouseEvent) {
-    if (!this.isMouseDown || this.holdPositionElement === undefined || this.holdPositionElement === null) {
+    if (!this.isMouseDown || this.selectedPositionElement === undefined || this.selectedPositionElement === null) {
       return;
     }
     this.moveHoldPositionElement(event.clientX, event.clientY);
   }
 
   moveHoldPositionElement(x: number, y: number) {
-    if (this.holdPositionElement === null || this.holdPositionElement === undefined) {
+    if (this.selectedPositionElement === null || this.selectedPositionElement === undefined) {
       return;
     }
-    this.holdPositionElement.style.left = (x - this.holdPositionElement.offsetWidth / 2) + 'px';
-    this.holdPositionElement.style.top = (y - this.holdPositionElement.offsetHeight / 2) + 'px';
+    this.selectedPositionElement.style.left = (x - this.selectedPositionElement.offsetWidth / 2) + 'px';
+    this.selectedPositionElement.style.top = (y - this.selectedPositionElement.offsetHeight / 2) + 'px';
   }
 
   onPositionBarClose(): void {
@@ -88,15 +88,15 @@ export class AppComponent {
 
     this.holdPositionComponentRef = this.main.createComponent(componentFactory);
     this.holdPosition = this.holdPositionComponentRef.instance;
-    this.holdPositionElement = this.holdPositionComponentRef.location.nativeElement;
+    this.selectedPositionElement = this.holdPositionComponentRef.location.nativeElement;
 
     const timestamp = this.holdPositionComponentRef.instance.setPosition(position);
-    this.positions.set(timestamp, this.holdPositionElement);
+    this.positions.set(timestamp, this.selectedPositionElement);
 
-    this.holdPositionElement.style.zIndex = '1';
-    this.holdPositionElement.style.position = 'absolute';
-    this.holdPositionElement.addEventListener('mouseup', this.mouseup.bind(this));
-    this.holdPositionElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
+    this.selectedPositionElement.style.zIndex = '1';
+    this.selectedPositionElement.style.position = 'absolute';
+    this.selectedPositionElement.addEventListener('mouseup', this.mouseup.bind(this));
+    this.selectedPositionElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
     this.holdPositionComponentRef.instance.selected.subscribe((p: Position) => {
       this.handleFieldPositionSelected(p);
     });
@@ -128,18 +128,20 @@ export class AppComponent {
 
     this.holdPositionComponentRef = null;
     this.holdPosition = null;
-    this.holdPositionElement = null;
+    this.selectedPositionElement = null;
   }
 
   handleFieldPositionSelected(position: Position) {
+    console.log(position.timestamp);
+    this.isMouseDown = true;
     if (this.selectedPosition.id !== 0) {
-      console.log('Changing shit');
-      this.positions.get(this.selectedPosition.timestamp).style.borderColor = 'yellow';
+      this.positions.get(this.selectedPosition.timestamp).style.backgroundColor = 'white';
     }
     this.selectedPosition = position;
     this.detailBarOpen = true;
-    const positionElement = this.positions.get(position.timestamp);
-    positionElement.style.borderColor = 'yellow';
+    this.selectedPositionElement = this.positions.get(position.timestamp);
+
+    this.selectedPositionElement.style.backgroundColor = 'yellow';
   }
 
   placePositionOnField() {
