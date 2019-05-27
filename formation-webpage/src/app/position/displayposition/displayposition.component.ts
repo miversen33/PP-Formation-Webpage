@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core';
 import { Position } from '../position';
-import { OFFENSIVE_POSITIONS } from 'src/app/services/mock-positions';
 
+const select = 'select';
 @Component({
   selector: 'app-displayposition',
   templateUrl: './displayposition.component.html',
@@ -9,14 +9,13 @@ import { OFFENSIVE_POSITIONS } from 'src/app/services/mock-positions';
 })
 export class DisplaypositionComponent implements OnInit {
 
-  position: Position = { id: 0, name: 'undefined', abbreviatedName: 'undefined', side: 'undefined'};
+  @Input() position: Position;
+  @Output() selected = new EventEmitter<Position>();
 
   constructor() { }
 
-  setPosition(position: Position) {
-    if (this.position.id === 0) {
-      this.position = position;
-    }
+  private handleMouseDown() {
+    this.selected.emit(this.position);
   }
 
   ngOnInit() {

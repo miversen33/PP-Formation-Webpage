@@ -1,10 +1,10 @@
-<div class="main" (mousemove)="mousemove($event)">
-  <mat-sidenav-container (mouseup)="mouseup($event.x, $event.y, field.getBoundingClientRect())">
-    <!-- <div #fieldContent> -->
-    <mat-sidenav #positionBar class="positionNavBar" 
+<div #main class="main"
+  (mousemove)="handleMouseMove($event)">
+  <div #container class="container">
+    <mat-sidenav-container>
+      <mat-sidenav #positionBar class="positionNavBar"
       opened=true mode="side" position="start"
       (openedStart)="onPositionBarOpen()" (closedStart)="onPositionBarClose()">
-      <div class="teamPanels">
         <mat-accordion multi="false">
           <mat-expansion-panel>
             <mat-expansion-panel-header>
@@ -14,10 +14,10 @@
             </mat-expansion-panel-header>
             <mat-list class="positionList" dense>
                 <mat-list-item #positionClass class="positionClass"
-                  (mousedown)="mousedown(position)"
-                  (mouseup)="mouseup()"
+                (mousedown)="mousedown($event, position)"
+                (mouseup)="mouseup()"
                   *ngFor="let position of getOffensivePlayers()">{{position.name}}
-                </mat-list-item> 
+                </mat-list-item>
             </mat-list>
           </mat-expansion-panel>
           <mat-expansion-panel>
@@ -27,9 +27,11 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
             <mat-list class="positionList" dense>
-              <mat-list-item 
-                *ngFor="let Position of getDefensivePlayers()">{{Position.name}}
-              </mat-list-item> 
+              <mat-list-item #positionClass class="positionClass"
+                (mousedown)="mousedown(position)"
+                (mouseup)="mouseup()"
+                *ngFor="let position of getDefensivePlayers()">{{position.name}}
+              </mat-list-item>
             </mat-list>
           </mat-expansion-panel>
           <mat-expansion-panel>
@@ -39,49 +41,42 @@
               </mat-panel-title>
             </mat-expansion-panel-header>
             <mat-list class="positionList" dense>
-              <mat-list-item 
-                *ngFor="let Position of getSpecialTeamsPlayers()">{{Position.name}}
-              </mat-list-item> 
+              <mat-list-item #positionClass class="positionClass"
+                (mousedown)="mousedown(position)"
+                (mouseup)="mouseup()"
+                *ngFor="let position of getSpecialTeamsPlayers()">{{position.name}}
+              </mat-list-item>
             </mat-list>
           </mat-expansion-panel>
         </mat-accordion>
-      </div>
-    </mat-sidenav>
-    <mat-sidenav-content>
-      <div class="content">
-        <div #field class="field">
-          <div class="version">
-            <p>{{version}}</p>
+      </mat-sidenav>
+      <mat-sidenav-content>
+        <div class="content">
+          <div #field class="field">
+            <div class="version">
+              <p>{{version}}</p>
+            </div>
+            <button #positionBarToggle class="positionBarToggle" (click)="positionBar.toggle()">{{positionButtonToggle}}</button>
+            <button #detailBarToggle class="detailBarToggle" (click)="detailNavBar.toggle()">{{detailButtonToggle}}</button>
           </div>
-          <button #positionBarToggle class="positionBarToggle" (click)="positionBar.toggle()">{{positionButtonToggle}}</button>
-          <button #detailBarToggle class="detailBarToggle" (click)="detailBar.toggle()">{{detailButtonToggle}}</button>
+          <div class="detailBar">
+            <p class="formationName">Enter Formation Name Here</p>
+            <button class="validateButton" disabled>
+              <p class="validateButtonTitle">Validate</p>
+            </button>
+            <p class="playName">Enter Play Name Here</p>
+          </div>
         </div>
-        <div class="detailBar">
-          <p class="formationName">Enter Formation Name Here</p>
-          <button class="validateButton" disabled>
-            <p class="validateButtonTitle">Validate</p>
-          </button>
-          <p class="playName">Enter Play Name Here</p>
+      </mat-sidenav-content>
+      <mat-sidenav #detailNavBar class="detailNavBar"
+        opened=true mode="side" position="end"
+        (openedStart)="onDetailBarOpen()" (closedStart)="onDetailBarClose()">
+        <div class="propertiesBar">
+          <p>
+            Properties
+          </p>
         </div>
-      </div>
-    </mat-sidenav-content>
-    <!-- </div> -->
-    <mat-sidenav #detailBar class="detailNavBar"
-      opened=true mode="side" position="end"
-      (openedStart)="onDetailBarOpen()" (closedStart)="onDetailBarClose()">
-      <div>
-        <mat-tab-group class="detailTabs">
-          <mat-tab label="Properties">
-            Properties Tab
-          </mat-tab>
-          <mat-tab label="Position XML">
-            Position XML Editor
-          </mat-tab>
-          <mat-tab label="Play XML">
-            Play XML Editor
-          </mat-tab>
-        </mat-tab-group>
-      </div>
-    </mat-sidenav>
-  </mat-sidenav-container>
+      </mat-sidenav>
+    </mat-sidenav-container>
+  </div>
 </div>

@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 
 import {
   MatSidenavModule,
@@ -15,11 +16,13 @@ const MaterialModules = [
   MatTabsModule,
   MatCardModule,
   MatListModule,
+  DragDropModule
 ];
 
 @NgModule({
+  declarations: [],
   imports: [
-    CommonModule,
+    CommonModule
   ],
   exports: [
     MaterialModules

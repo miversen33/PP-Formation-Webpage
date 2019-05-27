@@ -1,3 +1,6 @@
-<p>
-  {{position.abbreviatedName}}
-</p>
+<div #displayPosition class="displayPosition"
+  (mousedown)="handleMouseDown()">
+  <p>
+    {{position.abbreviatedName}}
+  </p>
+</div>
