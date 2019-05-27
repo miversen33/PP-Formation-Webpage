@@ -98,6 +98,10 @@ export class AppComponent {
 
     this.selectedPositionElement.style.zIndex = '1';
     this.selectedPositionElement.style.position = 'absolute';
+    this.selectedPositionElement.style.borderStyle = 'solid';
+    this.selectedPositionElement.style.borderWidth = '2px';
+    this.selectedPositionElement.style.borderRadius = '50%';
+    this.selectedPositionElement.style.borderColor = 'gray';
     this.selectedPositionElement.addEventListener('mouseup', this.mouseup.bind(this));
     this.selectedPositionElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
     this.holdPositionComponentRef.instance.selected.subscribe((p: Position) => {
@@ -137,12 +141,15 @@ export class AppComponent {
   handleFieldPositionSelected(position: Position) {
     this.isMouseDown = true;
     if (this.selectedPosition.id !== 0) {
+      this.positions.get(this.selectedPosition.id).style.borderColor = 'gray';
       // this.positions.get(this.selectedPosition.timestamp).style.backgroundColor = 'white';
     }
     this.selectedPosition = position;
     this.detailBarOpen = true;
     this.selectedPositionElement = this.positions.get(position.id);
-
+    this.selectedPositionElement.style.borderColor = 'yellow';
+    // this.selectedPositionElement.style.backgroundColor = 'yellow';
+    // this.selectedPositionElement.style.boxShadow = 'yellow';
     // this.selectedPositionElement.style.backgroundColor = 'yellow';
   }
 
