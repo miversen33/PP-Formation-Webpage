@@ -2,7 +2,8 @@ import { Component, ComponentRef, ViewChild, ViewContainerRef, ComponentFactoryR
 import { PositionsService } from './services/positions.service';
 import { DisplaypositionComponent } from './position/displayposition/displayposition.component';
 import { Position } from './position/position';
-import { QueryList } from '@angular/core/src/render3/query';
+
+const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: ''};
 
 @Component({
   selector: 'app-root',
@@ -18,19 +19,26 @@ export class AppComponent {
   isMouseDown = false;
   incrementedId = 100;
 
-  selectedPosition: Position = { id: 0, name: '', abbreviatedName: '', side: ''};
+  selectedPosition: Position = basePosition;
 
   holdPositionComponentRef: ComponentRef<DisplaypositionComponent> = null;
   selectedPositionElement: HTMLElement;
   holdPosition: DisplaypositionComponent = null;
 
-  positions: Map<number, HTMLElement> = new Map();
+  positions: Map<number, ComponentRef<DisplaypositionComponent>> = new Map();
 
   @ViewChild('main', { read: ViewContainerRef}) main: ViewContainerRef;
   @ViewChild('field', { read: ViewContainerRef}) field: ViewContainerRef;
-  @HostListener('document:keypress', ['$event'])
+  @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-
+    if (event.key === 'Delete' && this.selectedPosition.id !== 0) {
+      this.positions.get(this.selectedPosition.id).destroy();
+      this.positions.delete(this.selectedPosition.id);
+      this.selectedPosition = basePosition;
+      this.selectedPositionElement = null;
+      this.holdPositionComponentRef = null;
+      this.holdPosition = null;
+    }
   }
 
   constructor(
@@ -94,7 +102,7 @@ export class AppComponent {
     this.holdPosition.position = pCopy;
     this.selectedPositionElement = this.holdPositionComponentRef.location.nativeElement;
 
-    this.positions.set(this.holdPosition.position.id, this.selectedPositionElement);
+    this.positions.set(this.holdPosition.position.id, this.holdPositionComponentRef);
 
     this.selectedPositionElement.style.zIndex = '1';
     this.selectedPositionElement.style.position = 'absolute';
@@ -141,12 +149,12 @@ export class AppComponent {
   handleFieldPositionSelected(position: Position) {
     this.isMouseDown = true;
     if (this.selectedPosition.id !== 0) {
-      this.positions.get(this.selectedPosition.id).style.borderColor = 'gray';
+      this.positions.get(this.selectedPosition.id).location.nativeElement.style.borderColor = 'gray';
       // this.positions.get(this.selectedPosition.timestamp).style.backgroundColor = 'white';
     }
     this.selectedPosition = position;
     this.detailBarOpen = true;
-    this.selectedPositionElement = this.positions.get(position.id);
+    this.selectedPositionElement = this.positions.get(position.id).location.nativeElement;
     this.selectedPositionElement.style.borderColor = 'yellow';
     // this.selectedPositionElement.style.backgroundColor = 'yellow';
     // this.selectedPositionElement.style.boxShadow = 'yellow';
