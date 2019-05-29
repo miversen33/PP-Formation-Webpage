@@ -4,6 +4,7 @@ import { DisplaypositionComponent } from './position/displayposition/displayposi
 import { Position } from './position/position';
 
 const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: ''};
+const fieldLimit = 11;
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,10 @@ export class AppComponent {
   version = '0.0.2';
   isMouseDown = false;
   incrementedId = 100;
+  expansionPanelsEnabled = true;
+  offensePanelExpanded = true;
+  defensePanelExpanded = false;
+  specialTeamsPanelExpanded = false;
 
   selectedPosition: Position = basePosition;
 
@@ -32,12 +37,7 @@ export class AppComponent {
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
     if (event.key === 'Delete' && this.selectedPosition.id !== 0) {
-      this.positions.get(this.selectedPosition.id).destroy();
-      this.positions.delete(this.selectedPosition.id);
-      this.selectedPosition = basePosition;
-      this.selectedPositionElement = null;
-      this.holdPositionComponentRef = null;
-      this.holdPosition = null;
+      this.removePosition(this.selectedPosition);
     }
   }
 
@@ -102,7 +102,7 @@ export class AppComponent {
     this.holdPosition.position = pCopy;
     this.selectedPositionElement = this.holdPositionComponentRef.location.nativeElement;
 
-    this.positions.set(this.holdPosition.position.id, this.holdPositionComponentRef);
+    this.addPosition(pCopy, this.holdPositionComponentRef);
 
     this.selectedPositionElement.style.zIndex = '1';
     this.selectedPositionElement.style.position = 'absolute';
@@ -119,6 +119,27 @@ export class AppComponent {
     this.moveHoldPositionElement(event.clientX, event.clientY);
   }
 
+  addPosition(position: Position, component: ComponentRef<DisplaypositionComponent>) {
+    this.positions.set(position.id, component);
+    if (this.positions.size >= fieldLimit) {
+      this.offensePanelExpanded = false;
+      this.defensePanelExpanded = false;
+      this.specialTeamsPanelExpanded = false;
+      this.expansionPanelsEnabled = false;
+    }
+  }
+
+  removePosition(position: Position) {
+    this.positions.get(this.selectedPosition.id).destroy();
+    this.positions.delete(this.selectedPosition.id);
+    this.selectedPosition = basePosition;
+    this.selectedPositionElement = null;
+    this.holdPositionComponentRef = null;
+    this.holdPosition = null;
+    if (this.positions.size < fieldLimit) {
+      this.expansionPanelsEnabled = true;
+    }
+  }
 
   mouseup(event: MouseEvent) {
     this.isMouseDown = false;

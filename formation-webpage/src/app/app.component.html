@@ -6,7 +6,7 @@
       opened=true mode="side" position="start"
       (openedStart)="onPositionBarOpen()" (closedStart)="onPositionBarClose()">
         <mat-accordion multi="false">
-          <mat-expansion-panel>
+          <mat-expansion-panel disabled="{{!expansionPanelsEnabled}}" expanded="{{offensePanelExpanded}}">
             <mat-expansion-panel-header>
               <mat-panel-title>
                 Offense
@@ -20,7 +20,7 @@
                 </mat-list-item>
             </mat-list>
           </mat-expansion-panel>
-          <mat-expansion-panel>
+          <mat-expansion-panel disabled="{{!expansionPanelsEnabled}}" expanded="{{defensePanelExpanded}}">
             <mat-expansion-panel-header>
               <mat-panel-title>
                 Defense
@@ -34,7 +34,7 @@
               </mat-list-item>
             </mat-list>
           </mat-expansion-panel>
-          <mat-expansion-panel>
+          <mat-expansion-panel disabled="{{!expansionPanelsEnabled}}" expanded="{{specialTeamsPanelExpanded}}">
             <mat-expansion-panel-header>
               <mat-panel-title>
                 Special Teams
@@ -54,7 +54,7 @@
         <div class="content">
           <div #field class="field">
             <div class="version">
-              <p>{{version}}</p>
+              {{version}}
             </div>
             <button #positionBarToggle class="positionBarToggle" (click)="positionBar.toggle()">{{positionButtonToggle}}</button>
             <button #detailBarToggle class="detailBarToggle" (click)="detailNavBar.toggle()">{{detailButtonToggle}}</button>
