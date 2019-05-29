@@ -2,6 +2,7 @@ import { Component, ComponentRef, ViewChild, ViewContainerRef, ComponentFactoryR
 import { PositionsService } from './services/positions.service';
 import { DisplaypositionComponent } from './position/displayposition/displayposition.component';
 import { Position } from './position/position';
+import { MatSidenav, MatExpansionPanel, MatAccordion } from '@angular/material';
 
 const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: ''};
 const fieldLimit = 11;
@@ -15,14 +16,9 @@ const fieldLimit = 11;
 export class AppComponent {
   positionButtonToggle = '>';
   detailButtonToggle = '<';
-  detailBarOpen = false;
-  version = '0.0.2';
+  version = '0.0.3';
   isMouseDown = false;
   incrementedId = 100;
-  expansionPanelsEnabled = true;
-  offensePanelExpanded = true;
-  defensePanelExpanded = false;
-  specialTeamsPanelExpanded = false;
 
   selectedPosition: Position = basePosition;
 
@@ -34,10 +30,22 @@ export class AppComponent {
 
   @ViewChild('main', { read: ViewContainerRef}) main: ViewContainerRef;
   @ViewChild('field', { read: ViewContainerRef}) field: ViewContainerRef;
+  @ViewChild('detailNavBar') detailPanel: MatSidenav;
+  @ViewChild('positionBar') positionPanel: MatSidenav;
+  @ViewChild('positionHolder') positionHolder: MatAccordion;
+  @ViewChild('offensePanel') offensePanel: MatExpansionPanel;
+  @ViewChild('defensePanel') defensePanel: MatExpansionPanel;
+  @ViewChild('specialTeamsPanel') specialTeamsPanel: MatExpansionPanel;
+
   @HostListener('document:keydown', ['$event'])
   handleKeyboardEvent(event: KeyboardEvent) {
-    if (event.key === 'Delete' && this.selectedPosition.id !== 0) {
-      this.removePosition(this.selectedPosition);
+    if ((event.key === 'Delete' || event.key === 'Backspace') && this.selectedPosition.id !== 0) {
+      this.removeSelectedPosition();
+      this.detailPanel.close();
+    }
+    if (event.key === 'Escape') {
+      console.log('here');
+      this.detailPanel.close();
     }
   }
 
@@ -91,6 +99,9 @@ export class AppComponent {
   }
 
   mousedown(event: MouseEvent, position: Position) {
+    if (this.positions.size >= fieldLimit) {
+      return;
+    }
     this.isMouseDown = true;
 
     const pCopy: Position = { id: this.incrementedId, name: position.name, abbreviatedName: position.abbreviatedName, side: position.side};
@@ -122,14 +133,14 @@ export class AppComponent {
   addPosition(position: Position, component: ComponentRef<DisplaypositionComponent>) {
     this.positions.set(position.id, component);
     if (this.positions.size >= fieldLimit) {
-      this.offensePanelExpanded = false;
-      this.defensePanelExpanded = false;
-      this.specialTeamsPanelExpanded = false;
-      this.expansionPanelsEnabled = false;
+      this.offensePanel.close();
+      this.defensePanel.close();
+      this.specialTeamsPanel.close();
+      this.positionPanel.close();
     }
   }
 
-  removePosition(position: Position) {
+  removeSelectedPosition() {
     this.positions.get(this.selectedPosition.id).destroy();
     this.positions.delete(this.selectedPosition.id);
     this.selectedPosition = basePosition;
@@ -137,7 +148,7 @@ export class AppComponent {
     this.holdPositionComponentRef = null;
     this.holdPosition = null;
     if (this.positions.size < fieldLimit) {
-      this.expansionPanelsEnabled = true;
+      this.positionPanel.open();
     }
   }
 
@@ -171,18 +182,20 @@ export class AppComponent {
     this.isMouseDown = true;
     if (this.selectedPosition.id !== 0) {
       this.positions.get(this.selectedPosition.id).location.nativeElement.style.borderColor = 'gray';
-      // this.positions.get(this.selectedPosition.timestamp).style.backgroundColor = 'white';
     }
     this.selectedPosition = position;
-    this.detailBarOpen = true;
+    this.detailPanel.open();
     this.selectedPositionElement = this.positions.get(position.id).location.nativeElement;
     this.selectedPositionElement.style.borderColor = 'yellow';
-    // this.selectedPositionElement.style.backgroundColor = 'yellow';
-    // this.selectedPositionElement.style.boxShadow = 'yellow';
-    // this.selectedPositionElement.style.backgroundColor = 'yellow';
   }
 
   placePositionOnField() {
     this.handleFieldPositionSelected(this.holdPosition.position);
+  }
+
+  handleFieldClick() {
+    if (this.positionPanel.opened && this.positions.size >= fieldLimit) {
+      this.positionPanel.close();
+    }
   }
 }

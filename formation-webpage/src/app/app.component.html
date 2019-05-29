@@ -5,8 +5,8 @@
       <mat-sidenav #positionBar class="positionNavBar"
       opened=true mode="side" position="start"
       (openedStart)="onPositionBarOpen()" (closedStart)="onPositionBarClose()">
-        <mat-accordion multi="false">
-          <mat-expansion-panel disabled="{{!expansionPanelsEnabled}}" expanded="{{offensePanelExpanded}}">
+        <mat-accordion #positionHolder multi="false">
+          <mat-expansion-panel #offensePanel>
             <mat-expansion-panel-header>
               <mat-panel-title>
                 Offense
@@ -20,7 +20,7 @@
                 </mat-list-item>
             </mat-list>
           </mat-expansion-panel>
-          <mat-expansion-panel disabled="{{!expansionPanelsEnabled}}" expanded="{{defensePanelExpanded}}">
+          <mat-expansion-panel #defensePanel>
             <mat-expansion-panel-header>
               <mat-panel-title>
                 Defense
@@ -28,13 +28,13 @@
             </mat-expansion-panel-header>
             <mat-list class="positionList" dense>
               <mat-list-item #positionClass class="positionClass"
-                (mousedown)="mousedown(position)"
+                (mousedown)="mousedown($event, position)"
                 (mouseup)="mouseup()"
                 *ngFor="let position of getDefensivePlayers()">{{position.name}}
               </mat-list-item>
             </mat-list>
           </mat-expansion-panel>
-          <mat-expansion-panel disabled="{{!expansionPanelsEnabled}}" expanded="{{specialTeamsPanelExpanded}}">
+          <mat-expansion-panel #specialTeamsPanel>
             <mat-expansion-panel-header>
               <mat-panel-title>
                 Special Teams
@@ -42,7 +42,7 @@
             </mat-expansion-panel-header>
             <mat-list class="positionList" dense>
               <mat-list-item #positionClass class="positionClass"
-                (mousedown)="mousedown(position)"
+                (mousedown)="mousedown($event, position)"
                 (mouseup)="mouseup()"
                 *ngFor="let position of getSpecialTeamsPlayers()">{{position.name}}
               </mat-list-item>
@@ -52,7 +52,8 @@
       </mat-sidenav>
       <mat-sidenav-content>
         <div class="content">
-          <div #field class="field">
+          <div #field class="field"
+            (click)="handleFieldClick()">
             <div class="version">
               {{version}}
             </div>
@@ -69,7 +70,7 @@
         </div>
       </mat-sidenav-content>
       <mat-sidenav #detailNavBar class="detailNavBar"
-        opened={{detailBarOpen}} mode="side" position="end"
+        opened="false" mode="side" position="end"
         (openedStart)="onDetailBarOpen()" (closedStart)="onDetailBarClose()">
         <div class="propertiesBar">
           <h2>
