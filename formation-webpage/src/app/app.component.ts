@@ -2,7 +2,7 @@ import { Component, ComponentRef, ViewChild, ViewContainerRef, ComponentFactoryR
 import { PositionsService } from './services/positions.service';
 import { DisplaypositionComponent } from './position/displayposition/displayposition.component';
 import { Position } from './position/position';
-import { MatSidenav, MatExpansionPanel, MatAccordion } from '@angular/material';
+import { MatSidenav, MatExpansionPanel, MatAccordion, MatButton } from '@angular/material';
 
 const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: ''};
 const fieldLimit = 11;
@@ -16,9 +16,11 @@ const fieldLimit = 11;
 export class AppComponent {
   positionButtonToggle = '>';
   detailButtonToggle = '<';
-  version = '0.0.3';
+  version = '0.0.4';
   isMouseDown = false;
   incrementedId = 100;
+  shiftBeingHeld = false;
+  shiftHandled = false;
 
   selectedPosition: Position = basePosition;
 
@@ -36,16 +38,26 @@ export class AppComponent {
   @ViewChild('offensePanel') offensePanel: MatExpansionPanel;
   @ViewChild('defensePanel') defensePanel: MatExpansionPanel;
   @ViewChild('specialTeamsPanel') specialTeamsPanel: MatExpansionPanel;
+  @ViewChild('positionBarToggle') leftToggleButton: MatButton;
 
   @HostListener('document:keydown', ['$event'])
-  handleKeyboardEvent(event: KeyboardEvent) {
+  handleKeyboardDownEvent(event: KeyboardEvent) {
     if ((event.key === 'Delete' || event.key === 'Backspace') && this.selectedPosition.id !== 0) {
       this.removeSelectedPosition();
       this.detailPanel.close();
     }
     if (event.key === 'Escape') {
-      console.log('here');
       this.detailPanel.close();
+    }
+    if (event.key === 'Shift') {
+      this.shiftBeingHeld = true;
+    }
+  }
+
+  @HostListener('document:keyup', ['$event'])
+  handleKeyboardUpEvent(event: KeyboardEvent) {
+    if (event.key === 'Shift') {
+      this.shiftBeingHeld = false;
     }
   }
 
@@ -56,10 +68,22 @@ export class AppComponent {
   }
 
   handleMouseMove(event: MouseEvent) {
-    if (!this.isMouseDown || this.selectedPositionElement === undefined || this.selectedPositionElement === null) {
+    if (
+      !this.isMouseDown || this.selectedPositionElement === undefined || this.selectedPositionElement === null) {
       return;
     }
+    if (!this.shiftHandled && this.positions.size < fieldLimit && this.shiftBeingHeld) {
+      this.shiftHandled = true;
+      this.cloneSelectedPosition();
+      this.moveHoldPositionElement(event.clientX, event.clientY);
+    }
     this.moveHoldPositionElement(event.clientX, event.clientY);
+  }
+
+  cloneSelectedPosition() {
+    const positionClone = this.positionService.clonePosition(this.selectedPosition, this.incrementedId);
+    this.incrementedId ++;
+    this.createPosition(positionClone);
   }
 
   moveHoldPositionElement(x: number, y: number) {
@@ -104,28 +128,9 @@ export class AppComponent {
     }
     this.isMouseDown = true;
 
-    const pCopy: Position = { id: this.incrementedId, name: position.name, abbreviatedName: position.abbreviatedName, side: position.side};
+    const pCopy: Position = this.positionService.clonePosition(position, this.incrementedId);
     this.incrementedId ++;
-    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(DisplaypositionComponent);
-
-    this.holdPositionComponentRef = this.main.createComponent(componentFactory);
-    this.holdPosition = this.holdPositionComponentRef.instance;
-    this.holdPosition.position = pCopy;
-    this.selectedPositionElement = this.holdPositionComponentRef.location.nativeElement;
-
-    this.addPosition(pCopy, this.holdPositionComponentRef);
-
-    this.selectedPositionElement.style.zIndex = '1';
-    this.selectedPositionElement.style.position = 'absolute';
-    this.selectedPositionElement.style.borderStyle = 'solid';
-    this.selectedPositionElement.style.borderWidth = '2px';
-    this.selectedPositionElement.style.borderRadius = '50%';
-    this.selectedPositionElement.style.borderColor = 'gray';
-    this.selectedPositionElement.addEventListener('mouseup', this.mouseup.bind(this));
-    this.selectedPositionElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
-    this.holdPositionComponentRef.instance.selected.subscribe((p: Position) => {
-      this.handleFieldPositionSelected(p);
-    });
+    this.createPosition(pCopy);
 
     this.moveHoldPositionElement(event.clientX, event.clientY);
   }
@@ -133,6 +138,7 @@ export class AppComponent {
   addPosition(position: Position, component: ComponentRef<DisplaypositionComponent>) {
     this.positions.set(position.id, component);
     if (this.positions.size >= fieldLimit) {
+      this.leftToggleButton.disabled = true;
       this.offensePanel.close();
       this.defensePanel.close();
       this.specialTeamsPanel.close();
@@ -148,12 +154,50 @@ export class AppComponent {
     this.holdPositionComponentRef = null;
     this.holdPosition = null;
     if (this.positions.size < fieldLimit) {
+      this.leftToggleButton.disabled = false;
       this.positionPanel.open();
     }
   }
 
+  removePosition(position: number) {
+    this.positions.get(position).destroy();
+    this.positions.delete(position);
+    this.selectedPosition = basePosition;
+    this.selectedPositionElement = null;
+    this.holdPositionComponentRef = null;
+    this.holdPosition = null;
+    if (this.positions.size < fieldLimit) {
+      this.leftToggleButton.disabled = false;
+      this.positionPanel.open();
+    }
+  }
+
+  createPosition(position: Position) {
+    const componentFactory = this.componentFactoryResolver.resolveComponentFactory(DisplaypositionComponent);
+
+    this.holdPositionComponentRef = this.main.createComponent(componentFactory);
+    this.holdPosition = this.holdPositionComponentRef.instance;
+    this.holdPosition.position = position;
+    this.selectedPositionElement = this.holdPositionComponentRef.location.nativeElement;
+
+    this.addPosition(position, this.holdPositionComponentRef);
+
+    this.selectedPositionElement.style.zIndex = '1';
+    this.selectedPositionElement.style.position = 'absolute';
+    this.selectedPositionElement.style.borderStyle = 'solid';
+    this.selectedPositionElement.style.borderWidth = '2px';
+    this.selectedPositionElement.style.borderRadius = '50%';
+    this.selectedPositionElement.style.borderColor = 'gray';
+    this.selectedPositionElement.addEventListener('mouseup', this.mouseup.bind(this));
+    this.selectedPositionElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
+    this.holdPositionComponentRef.instance.selected.subscribe((p: Position) => {
+      this.handleFieldPositionSelected(p);
+    });
+  }
+
   mouseup(event: MouseEvent) {
     this.isMouseDown = false;
+    this.shiftHandled = false;
     if (this.holdPositionComponentRef == null) {
       return;
     }
@@ -197,5 +241,14 @@ export class AppComponent {
     if (this.positionPanel.opened && this.positions.size >= fieldLimit) {
       this.positionPanel.close();
     }
+  }
+
+  handleReset() {
+    console.log(this.positions.keys());
+    for (const key of Array.from(this.positions.keys())) {
+      this.removePosition(key);
+    }
+    this.detailPanel.close();
+    this.positionPanel.open();
   }
 }

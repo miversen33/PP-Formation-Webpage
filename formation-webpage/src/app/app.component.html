@@ -6,7 +6,7 @@
       opened=true mode="side" position="start"
       (openedStart)="onPositionBarOpen()" (closedStart)="onPositionBarClose()">
         <mat-accordion #positionHolder multi="false">
-          <mat-expansion-panel #offensePanel>
+          <mat-expansion-panel #offensePanel class="offensePanel">
             <mat-expansion-panel-header>
               <mat-panel-title>
                 Offense
@@ -20,7 +20,7 @@
                 </mat-list-item>
             </mat-list>
           </mat-expansion-panel>
-          <mat-expansion-panel #defensePanel>
+          <mat-expansion-panel #defensePanel class="defensePanel">
             <mat-expansion-panel-header>
               <mat-panel-title>
                 Defense
@@ -34,7 +34,7 @@
               </mat-list-item>
             </mat-list>
           </mat-expansion-panel>
-          <mat-expansion-panel #specialTeamsPanel>
+          <mat-expansion-panel #specialTeamsPanel class="specialTeamsPanel">
             <mat-expansion-panel-header>
               <mat-panel-title>
                 Special Teams
@@ -59,6 +59,7 @@
             </div>
             <button mat-raised-button #positionBarToggle class="positionBarToggle" (click)="positionBar.toggle()">{{positionButtonToggle}}</button>
             <button mat-raised-button #detailBarToggle class="detailBarToggle" (click)="detailNavBar.toggle()">{{detailButtonToggle}}</button>
+            <button mat-raised-button #resetButton class="resetButton" (click)="handleReset()">Reset</button>
           </div>
           <div class="detailBar">
             <p class="formationName">Enter Formation Name Here</p>
