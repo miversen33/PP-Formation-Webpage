@@ -16,7 +16,9 @@ const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: ''}
 const fieldLimit = 11;
 const gridHeightLimit = 20;
 const selectionColor = 'yellow';
-const xSnapLimit = 15;
+const xSnapLimit = 5;
+const positionWidth = 35;
+const horizontalGap = 10;
 
 @Component({
   selector: 'app-root',
@@ -227,7 +229,6 @@ export class AppComponent implements AfterViewInit {
     this.selectedPositionElement.addEventListener('mouseup', this.mouseup.bind(this));
     this.selectedPositionElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
     componentRef.instance.selected.subscribe((p: Position) => {
-      console.log(this.selectedPosition);
       this.handleFieldPositionSelected(p);
     });
 
@@ -293,15 +294,8 @@ export class AppComponent implements AfterViewInit {
   getSnapLocation(mouseX: number, mouseY: number) {
     let prevY = 0;
     this.xSnap = mouseX;
+    this.ySnap = mouseY;
     const countVar = 2;
-
-    for (const key of Array.from(this.horizontalSnap.keys())) {
-      const x = this.horizontalSnap.get(key);
-      if (Math.abs(mouseX - x) <= xSnapLimit) {
-        this.xSnap = x;
-        break;
-      }
-    }
 
     for (let count = 0; count < this.verticalSnap.length - countVar; count += countVar) {
       const y = this.verticalSnap[count];
@@ -319,5 +313,38 @@ export class AppComponent implements AfterViewInit {
         }
       }
     }
+
+    if (this.positions.size === 1) {
+      return;
+    }
+
+    for (const key of Array.from(this.horizontalSnap.keys())) {
+      const x = this.horizontalSnap.get(key);
+      if (Math.abs(mouseX - x) <= xSnapLimit) {
+        this.xSnap = x;
+        return;
+      }
+    }
+
+    for (const key of Array.from(this.positions.keys())) {
+      if (key === this.selectedPosition.id) {
+        continue;
+      }
+      const pX: number =
+        this.positions.get(key).location.nativeElement.offsetLeft +
+        (this.positions.get(key).location.nativeElement.offsetWidth / 2);
+      const pY: number =
+        this.positions.get(key).location.nativeElement.offsetTop +
+        (this.positions.get(key).location.nativeElement.offsetHeight / 2);
+      const pWidth: number = this.positions.get(key).location.nativeElement.offsetWidth;
+      if ((Math.abs(this.ySnap - pY) <= 1) && (Math.abs(this.xSnap - pX) <= (xSnapLimit + pWidth))) {
+        if (this.xSnap < pX) {
+          this.xSnap = pX - pWidth - xSnapLimit;
+        } else {
+          this.xSnap = pX + pWidth + xSnapLimit;
+        }
+      }
+    }
+
   }
 }
