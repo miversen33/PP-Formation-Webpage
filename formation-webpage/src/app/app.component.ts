@@ -39,10 +39,7 @@ export class AppComponent implements AfterViewInit {
   ySnap: number;
 
   selectedPosition: Position = basePosition;
-
-  holdPositionComponentRef: ComponentRef<DisplaypositionComponent> = null;
   selectedPositionElement: HTMLElement;
-  holdPosition: DisplaypositionComponent = null;
 
   positions: Map<number, ComponentRef<DisplaypositionComponent>> = new Map();
 
@@ -206,8 +203,6 @@ export class AppComponent implements AfterViewInit {
     this.positions.delete(position);
     this.selectedPosition = basePosition;
     this.selectedPositionElement = null;
-    this.holdPositionComponentRef = null;
-    this.holdPosition = null;
     if (this.positions.size < fieldLimit) {
       this.leftToggleButton.disabled = false;
       this.positionPanel.open();
@@ -217,12 +212,11 @@ export class AppComponent implements AfterViewInit {
   createPosition(position: Position) {
     const componentFactory = this.componentFactoryResolver.resolveComponentFactory(DisplaypositionComponent);
 
-    this.holdPositionComponentRef = this.main.createComponent(componentFactory);
-    this.holdPosition = this.holdPositionComponentRef.instance;
-    this.holdPosition.position = position;
-    this.selectedPositionElement = this.holdPositionComponentRef.location.nativeElement;
+    const componentRef = this.main.createComponent(componentFactory);
+    componentRef.instance.position = position;
+    this.selectedPositionElement = componentRef.location.nativeElement;
 
-    this.addPosition(position, this.holdPositionComponentRef);
+    this.addPosition(position, componentRef);
 
     this.selectedPositionElement.style.zIndex = '1';
     this.selectedPositionElement.style.position = 'absolute';
@@ -232,17 +226,19 @@ export class AppComponent implements AfterViewInit {
     this.selectedPositionElement.style.borderColor = 'gray';
     this.selectedPositionElement.addEventListener('mouseup', this.mouseup.bind(this));
     this.selectedPositionElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
-    this.holdPositionComponentRef.instance.selected.subscribe((p: Position) => {
+    componentRef.instance.selected.subscribe((p: Position) => {
+      console.log(this.selectedPosition);
       this.handleFieldPositionSelected(p);
     });
+
+    this.handleFieldPositionSelected(position);
+
   }
 
   mouseup(event: MouseEvent) {
     this.isMouseDown = false;
     this.shiftHandled = false;
-    // if (this.holdPositionComponentRef == null) {
-    //   return;
-    // }
+
     const mouseX = event.clientX;
     const mouseY = event.clientY;
     const left = this.field.element.nativeElement.getBoundingClientRect().left;
@@ -256,13 +252,8 @@ export class AppComponent implements AfterViewInit {
          (mouseY > top))) {
            this.placePositionOnField(mouseX);
     } else {
-      if (this.holdPositionComponentRef != null) {
-        this.holdPositionComponentRef.destroy();
-      }
+      this.positions.get(this.selectedPosition.id).destroy();
     }
-
-    this.holdPositionComponentRef = null;
-    this.holdPosition = null;
     this.selectedPositionElement = null;
   }
 
@@ -282,7 +273,7 @@ export class AppComponent implements AfterViewInit {
       this.horizontalSnap.delete(this.selectedPosition.id);
     }
     this.horizontalSnap.set(this.selectedPosition.id, xLocation);
-    this.handleFieldPositionSelected(this.holdPosition.position);
+    this.handleFieldPositionSelected(this.selectedPosition);
   }
 
   handleFieldClick() {
