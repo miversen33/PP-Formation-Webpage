@@ -240,9 +240,9 @@ export class AppComponent implements AfterViewInit {
   mouseup(event: MouseEvent) {
     this.isMouseDown = false;
     this.shiftHandled = false;
-    if (this.holdPositionComponentRef == null) {
-      return;
-    }
+    // if (this.holdPositionComponentRef == null) {
+    //   return;
+    // }
     const mouseX = event.clientX;
     const mouseY = event.clientY;
     const left = this.field.element.nativeElement.getBoundingClientRect().left;
@@ -256,7 +256,9 @@ export class AppComponent implements AfterViewInit {
          (mouseY > top))) {
            this.placePositionOnField(mouseX);
     } else {
-      this.holdPositionComponentRef.destroy();
+      if (this.holdPositionComponentRef != null) {
+        this.holdPositionComponentRef.destroy();
+      }
     }
 
     this.holdPositionComponentRef = null;
@@ -276,11 +278,11 @@ export class AppComponent implements AfterViewInit {
   }
 
   placePositionOnField(xLocation: number) {
-    this.handleFieldPositionSelected(this.holdPosition.position);
     if (this.horizontalSnap.keys().hasOwnProperty(this.selectedPosition.id)) {
       this.horizontalSnap.delete(this.selectedPosition.id);
     }
     this.horizontalSnap.set(this.selectedPosition.id, xLocation);
+    this.handleFieldPositionSelected(this.holdPosition.position);
   }
 
   handleFieldClick() {
