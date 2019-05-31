@@ -124,8 +124,9 @@ export class AppComponent implements AfterViewInit {
       this.shiftHandled = true;
       this.cloneSelectedPosition();
       this.moveHoldPositionElement(event.clientX, event.clientY);
+    } else {
+      this.moveHoldPositionElement(event.clientX, event.clientY);
     }
-    this.moveHoldPositionElement(event.clientX, event.clientY);
   }
 
   cloneSelectedPosition() {
@@ -200,6 +201,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   removePosition(position: number) {
+    this.horizontalSnap.delete(position);
     this.positions.get(position).destroy();
     this.positions.delete(position);
     this.selectedPosition = basePosition;
