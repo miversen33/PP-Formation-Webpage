@@ -196,16 +196,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   removeSelectedPosition() {
-    this.positions.get(this.selectedPosition.id).destroy();
-    this.positions.delete(this.selectedPosition.id);
-    this.selectedPosition = basePosition;
-    this.selectedPositionElement = null;
-    this.holdPositionComponentRef = null;
-    this.holdPosition = null;
-    if (this.positions.size < fieldLimit) {
-      this.leftToggleButton.disabled = false;
-      this.positionPanel.open();
-    }
+    this.removePosition(this.selectedPosition.id);
   }
 
   removePosition(position: number) {
