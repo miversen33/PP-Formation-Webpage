@@ -1,4 +1,12 @@
-import { Component, ComponentRef, ViewChild, ViewContainerRef, ComponentFactoryResolver, ElementRef, HostListener } from '@angular/core';
+import { Component,
+  ComponentRef,
+  ViewChild,
+  ViewContainerRef,
+  ComponentFactoryResolver,
+  HostListener,
+  AfterViewInit,
+  ElementRef } from '@angular/core';
+
 import { PositionsService } from './services/positions.service';
 import { DisplaypositionComponent } from './position/displayposition/displayposition.component';
 import { Position } from './position/position';
@@ -6,6 +14,9 @@ import { MatSidenav, MatExpansionPanel, MatAccordion, MatButton } from '@angular
 
 const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: ''};
 const fieldLimit = 11;
+const gridHeightLimit = 20;
+const selectionColor = 'yellow';
+const xSnapLimit = 15;
 
 @Component({
   selector: 'app-root',
@@ -13,14 +24,19 @@ const fieldLimit = 11;
   styleUrls: ['./app.component.css']
 })
 
-export class AppComponent {
+export class AppComponent implements AfterViewInit {
   positionButtonToggle = '>';
   detailButtonToggle = '<';
-  version = '0.0.4';
+  version = '0.0.5';
   isMouseDown = false;
   incrementedId = 100;
   shiftBeingHeld = false;
   shiftHandled = false;
+  verticalSnap: number[] = [];
+  horizontalSnap: Map<number, number> = new Map();
+  snapDistance: number;
+  xSnap: number;
+  ySnap: number;
 
   selectedPosition: Position = basePosition;
 
@@ -39,6 +55,7 @@ export class AppComponent {
   @ViewChild('defensePanel') defensePanel: MatExpansionPanel;
   @ViewChild('specialTeamsPanel') specialTeamsPanel: MatExpansionPanel;
   @ViewChild('positionBarToggle') leftToggleButton: MatButton;
+  @ViewChild('grid') grid: ElementRef;
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardDownEvent(event: KeyboardEvent) {
@@ -59,6 +76,37 @@ export class AppComponent {
     if (event.key === 'Shift') {
       this.shiftBeingHeld = false;
     }
+  }
+
+  ngAfterViewInit(): void {
+    const canvas: CanvasRenderingContext2D = this.grid.nativeElement.getContext('2d');
+    const diff = this.grid.nativeElement.offsetHeight / gridHeightLimit;
+    const diff2 = diff / 5;
+    const greedyDiff = diff / 10;
+    const width = this.grid.nativeElement.offsetWidth;
+
+    const majorLineStyle = 'gray';
+    const minorLineStyle = 'lightGray';
+
+    canvas.beginPath();
+    for (let line = greedyDiff; line < this.grid.nativeElement.offsetHeight - greedyDiff; line += greedyDiff) {
+      let style = minorLineStyle;
+      let thickness = .15;
+      if ((Math.round(line * 100) % Math.round(diff * 100)) === 0) {
+        thickness = .20;
+        style = majorLineStyle;
+      }
+      if ((Math.round(line * 100) % Math.round(diff2 * 100)) === 0) {
+        thickness = .20;
+      }
+      this.verticalSnap[this.verticalSnap.length] = line;
+      canvas.fillStyle = style;
+      canvas.fillRect(0, line, width, thickness);
+    }
+
+    this.snapDistance = greedyDiff;
+
+    canvas.closePath();
   }
 
   constructor(
@@ -86,12 +134,13 @@ export class AppComponent {
     this.createPosition(positionClone);
   }
 
-  moveHoldPositionElement(x: number, y: number) {
+  moveHoldPositionElement(inX: number, inY: number) {
     if (this.selectedPositionElement === null || this.selectedPositionElement === undefined) {
       return;
     }
-    this.selectedPositionElement.style.left = (x - this.selectedPositionElement.offsetWidth / 2) + 'px';
-    this.selectedPositionElement.style.top = (y - this.selectedPositionElement.offsetHeight / 2) + 'px';
+    this.getSnapLocation(inX, inY);
+    this.selectedPositionElement.style.left = (this.xSnap - this.selectedPositionElement.offsetWidth / 2) + 'px';
+    this.selectedPositionElement.style.top = (this.ySnap - this.selectedPositionElement.offsetHeight / 2) + 'px';
   }
 
   onPositionBarClose(): void {
@@ -212,7 +261,7 @@ export class AppComponent {
          (mouseX > left)) &&
         ((mouseY < bottom) &&
          (mouseY > top))) {
-           this.placePositionOnField();
+           this.placePositionOnField(mouseX);
     } else {
       this.holdPositionComponentRef.destroy();
     }
@@ -230,11 +279,15 @@ export class AppComponent {
     this.selectedPosition = position;
     this.detailPanel.open();
     this.selectedPositionElement = this.positions.get(position.id).location.nativeElement;
-    this.selectedPositionElement.style.borderColor = 'yellow';
+    this.selectedPositionElement.style.borderColor = selectionColor;
   }
 
-  placePositionOnField() {
+  placePositionOnField(xLocation: number) {
     this.handleFieldPositionSelected(this.holdPosition.position);
+    if (this.horizontalSnap.keys().hasOwnProperty(this.selectedPosition.id)) {
+      this.horizontalSnap.delete(this.selectedPosition.id);
+    }
+    this.horizontalSnap.set(this.selectedPosition.id, xLocation);
   }
 
   handleFieldClick() {
@@ -244,11 +297,41 @@ export class AppComponent {
   }
 
   handleReset() {
-    console.log(this.positions.keys());
     for (const key of Array.from(this.positions.keys())) {
       this.removePosition(key);
     }
     this.detailPanel.close();
     this.positionPanel.open();
+  }
+
+  getSnapLocation(mouseX: number, mouseY: number) {
+    let prevY = 0;
+    this.xSnap = mouseX;
+    const countVar = 2;
+
+    for (const key of Array.from(this.horizontalSnap.keys())) {
+      const x = this.horizontalSnap.get(key);
+      if (Math.abs(mouseX - x) <= xSnapLimit) {
+        this.xSnap = x;
+        break;
+      }
+    }
+
+    for (let count = 0; count < this.verticalSnap.length - countVar; count += countVar) {
+      const y = this.verticalSnap[count];
+      if (mouseY > y) {
+        prevY = y;
+        continue;
+      }
+      if (mouseY > prevY && mouseY < y) {
+        if (Math.abs(prevY - mouseY) < Math.abs(y - mouseY)) {
+          this.ySnap = prevY;
+          break;
+        } else {
+          this.ySnap = y;
+          break;
+        }
+      }
+    }
   }
 }

@@ -57,6 +57,9 @@
             <div class="version">
               {{version}}
             </div>
+            <div>
+              <canvas #grid class="grid"></canvas>
+            </div>
             <button mat-raised-button #positionBarToggle class="positionBarToggle" (click)="positionBar.toggle()">{{positionButtonToggle}}</button>
             <button mat-raised-button #detailBarToggle class="detailBarToggle" (click)="detailNavBar.toggle()">{{detailButtonToggle}}</button>
             <button mat-raised-button #resetButton class="resetButton" (click)="handleReset()">Reset</button>
