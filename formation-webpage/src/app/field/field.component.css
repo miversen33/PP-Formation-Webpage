@@ -1,0 +1,65 @@
+.field{
+    height: 100vh;
+    width: 100%;  
+}
+  
+.grid{
+    z-index: -1;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 95vh;
+}
+
+
+.positionBarToggle{
+    position: absolute;
+    top: 50%;
+    left: 0%;
+}
+  
+.detailBarToggle{
+    position: absolute;
+    top: 50%;
+    right: 0%;
+}
+  
+.resetButton{
+    position: absolute;
+    top: 0%;
+    right: 0%;
+}
+  
+.validateButton{
+    padding: 0;
+    height: 5vh;
+}
+  
+.validateButtonTitle{
+    padding: 0;
+    margin: 0;
+}
+  
+.detailBar{
+    width: 100%;
+    height: 5vh;
+    background-color: white;
+    left: 0;
+    bottom: 0;
+    position: absolute;
+    display: grid;
+    grid-template-columns: auto 18% auto;
+    grid-template-rows: auto;
+}
+  
+.formationName{
+    margin-left: auto;
+    margin-right: auto;
+}
+  
+.playName{
+    margin-left: auto;
+    margin-right: auto;
+}
+  

@@ -4,23 +4,24 @@ import { Component,
   ViewContainerRef,
   ComponentFactoryResolver,
   HostListener,
-  AfterViewInit,
-  ElementRef } from '@angular/core';
+  AfterViewInit} from '@angular/core';
 
 import { PositionsService } from './services/positions.service';
 import { DisplaypositionComponent } from './position/displayposition/displayposition.component';
 import { Position } from './position/position';
-import { MatSidenav, MatExpansionPanel, MatAccordion, MatButton } from '@angular/material';
+import { MatSidenav, MatAccordion, MatButton } from '@angular/material';
 import { PositionbarComponent } from './positionbar/positionbar.component';
 import { PositionSelector } from './positionbar/positionSelector';
+import { DetailbarComponent } from './detailbar/detailbar.component';
+import { FieldComponent } from './field/field.component';
 
 const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: ''};
 const fieldLimit = 11;
 const gridHeightLimit = 20;
+const minPlayerGap = 5;
 const selectionColor = 'yellow';
-const xSnapLimit = 5;
-const positionWidth = 35;
-const horizontalGap = 10;
+const xSnapLimit = 20;
+const ySnapLimit = 15;
 
 @Component({
   selector: 'app-root',
@@ -29,36 +30,32 @@ const horizontalGap = 10;
 })
 
 export class AppComponent implements AfterViewInit {
-  positionButtonToggle = '>';
-  detailButtonToggle = '<';
-  version = '0.0.5';
   isMouseDown = false;
   incrementedId = 100;
   shiftBeingHeld = false;
   shiftHandled = false;
-  verticalSnap: number[] = [];
-  horizontalSnap: Map<number, number> = new Map();
-  snapDistance: number;
+  controlBeingHeld = false;
+  playerSnaps: Map<number, {x: number, y: number}> = new Map();
   xSnap: number;
   ySnap: number;
 
-  selectedPosition: Position = basePosition;
   selectedPositionElement: HTMLElement;
 
   positions: Map<number, ComponentRef<DisplaypositionComponent>> = new Map();
 
   @ViewChild('main', { read: ViewContainerRef}) main: ViewContainerRef;
-  @ViewChild('field', { read: ViewContainerRef}) field: ViewContainerRef;
-  @ViewChild('detailNavBar') detailPanel: MatSidenav;
+  @ViewChild('field', { read: ViewContainerRef}) fieldRef: ViewContainerRef;
+  @ViewChild('field') field: FieldComponent;
+  @ViewChild('detailBar') detailPanel: MatSidenav;
   @ViewChild('positionBar') positionBar: MatSidenav;
+  @ViewChild('propertiesPanel') propertiesPanel: DetailbarComponent;
   @ViewChild('positionHolder') positionHolder: MatAccordion;
   @ViewChild('positionPanel') positionPanel: PositionbarComponent;
   @ViewChild('positionBarToggle') leftToggleButton: MatButton;
-  @ViewChild('grid') grid: ElementRef;
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardDownEvent(event: KeyboardEvent) {
-    if ((event.key === 'Delete' || event.key === 'Backspace') && this.selectedPosition.id !== 0) {
+    if ((event.key === 'Delete' || event.key === 'Backspace') && this.propertiesPanel.getSelectedPosition().id !== 0) {
       this.removeSelectedPosition();
       this.detailPanel.close();
     }
@@ -68,6 +65,9 @@ export class AppComponent implements AfterViewInit {
     if (event.key === 'Shift') {
       this.shiftBeingHeld = true;
     }
+    if (event.key === 'Control') {
+      this.controlBeingHeld = true;
+    }
   }
 
   @HostListener('document:keyup', ['$event'])
@@ -75,20 +75,24 @@ export class AppComponent implements AfterViewInit {
     if (event.key === 'Shift') {
       this.shiftBeingHeld = false;
     }
+    if (event.key === 'Control') {
+      this.controlBeingHeld = false;
+    }
   }
 
   ngAfterViewInit(): void {
-    const canvas: CanvasRenderingContext2D = this.grid.nativeElement.getContext('2d');
-    const diff = this.grid.nativeElement.offsetHeight / gridHeightLimit;
+    const grid = this.field.getCanvas();
+    const canvas: CanvasRenderingContext2D = grid.getContext('2d');
+    const diff = grid.offsetHeight / gridHeightLimit;
     const diff2 = diff / 5;
     const greedyDiff = diff / 10;
-    const width = this.grid.nativeElement.offsetWidth;
+    const width = grid.offsetWidth;
 
     const majorLineStyle = 'gray';
     const minorLineStyle = 'lightGray';
 
     canvas.beginPath();
-    for (let line = greedyDiff; line < this.grid.nativeElement.offsetHeight - greedyDiff; line += greedyDiff) {
+    for (let line = greedyDiff; line < grid.offsetHeight - greedyDiff; line += greedyDiff) {
       let style = minorLineStyle;
       let thickness = .15;
       if ((Math.round(line * 100) % Math.round(diff * 100)) === 0) {
@@ -98,12 +102,9 @@ export class AppComponent implements AfterViewInit {
       if ((Math.round(line * 100) % Math.round(diff2 * 100)) === 0) {
         thickness = .20;
       }
-      this.verticalSnap[this.verticalSnap.length] = line;
       canvas.fillStyle = style;
       canvas.fillRect(0, line, width, thickness);
     }
-
-    this.snapDistance = greedyDiff;
 
     canvas.closePath();
   }
@@ -128,7 +129,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   cloneSelectedPosition() {
-    const positionClone = this.positionService.clonePosition(this.selectedPosition, this.incrementedId);
+    const positionClone = this.positionService.clonePosition(this.propertiesPanel.getSelectedPosition(), this.incrementedId);
     this.incrementedId ++;
     this.createPosition(positionClone);
   }
@@ -140,22 +141,6 @@ export class AppComponent implements AfterViewInit {
     this.getSnapLocation(inX, inY);
     this.selectedPositionElement.style.left = (this.xSnap - this.selectedPositionElement.offsetWidth / 2) + 'px';
     this.selectedPositionElement.style.top = (this.ySnap - this.selectedPositionElement.offsetHeight / 2) + 'px';
-  }
-
-  onPositionBarClose(): void {
-    this.positionButtonToggle = '>';
-  }
-
-  onPositionBarOpen(): void {
-      this.positionButtonToggle = '<';
-  }
-
-  onDetailBarClose(): void {
-    this.detailButtonToggle = '<';
-  }
-
-  onDetailBarOpen(): void {
-      this.detailButtonToggle = '>';
   }
 
   handlePositionSelected(event: PositionSelector) {
@@ -174,24 +159,24 @@ export class AppComponent implements AfterViewInit {
   addPosition(position: Position, component: ComponentRef<DisplaypositionComponent>) {
     this.positions.set(position.id, component);
     if (this.positions.size >= fieldLimit) {
-      this.leftToggleButton.disabled = true;
+      this.field.disablePositionButton();
       this.positionPanel.closeAll();
       this.positionBar.close();
     }
   }
 
   removeSelectedPosition() {
-    this.removePosition(this.selectedPosition.id);
+    this.removePosition(this.propertiesPanel.getSelectedPosition().id);
   }
 
   removePosition(position: number) {
-    this.horizontalSnap.delete(position);
+    this.playerSnaps.delete(position);
     this.positions.get(position).destroy();
     this.positions.delete(position);
-    this.selectedPosition = basePosition;
+    this.propertiesPanel.setSelectedPosition(basePosition);
     this.selectedPositionElement = null;
     if (this.positions.size < fieldLimit) {
-      this.leftToggleButton.disabled = false;
+      this.field.enablePositionButton();
       this.positionBar.open();
     }
   }
@@ -227,39 +212,39 @@ export class AppComponent implements AfterViewInit {
 
     const mouseX = event.clientX;
     const mouseY = event.clientY;
-    const left = this.field.element.nativeElement.getBoundingClientRect().left;
-    const top = this.field.element.nativeElement.getBoundingClientRect().top;
-    const right = this.field.element.nativeElement.getBoundingClientRect().right;
-    const bottom = this.field.element.nativeElement.getBoundingClientRect().bottom;
+    const left = this.fieldRef.element.nativeElement.getBoundingClientRect().left;
+    const top = this.fieldRef.element.nativeElement.getBoundingClientRect().top;
+    const right = this.fieldRef.element.nativeElement.getBoundingClientRect().right;
+    const bottom = this.fieldRef.element.nativeElement.getBoundingClientRect().bottom;
 
     if (((mouseX < right) &&
          (mouseX > left)) &&
         ((mouseY < bottom) &&
          (mouseY > top))) {
-           this.placePositionOnField(mouseX);
+           this.placePositionOnField(mouseX, mouseY);
     } else {
-      this.positions.get(this.selectedPosition.id).destroy();
+      this.positions.get(this.propertiesPanel.getSelectedPosition().id).destroy();
     }
     this.selectedPositionElement = null;
   }
 
   handleFieldPositionSelected(position: Position) {
     this.isMouseDown = true;
-    if (this.selectedPosition.id !== 0) {
-      this.positions.get(this.selectedPosition.id).location.nativeElement.style.borderColor = 'gray';
+    if (this.propertiesPanel.getSelectedPosition().id !== 0) {
+      this.positions.get(this.propertiesPanel.getSelectedPosition().id).location.nativeElement.style.borderColor = 'gray';
     }
-    this.selectedPosition = position;
+    this.propertiesPanel.setSelectedPosition(position);
     this.detailPanel.open();
     this.selectedPositionElement = this.positions.get(position.id).location.nativeElement;
     this.selectedPositionElement.style.borderColor = selectionColor;
   }
 
-  placePositionOnField(xLocation: number) {
-    if (this.horizontalSnap.keys().hasOwnProperty(this.selectedPosition.id)) {
-      this.horizontalSnap.delete(this.selectedPosition.id);
+  placePositionOnField(xLocation: number, yLocation: number) {
+    if (this.playerSnaps.keys().hasOwnProperty(this.propertiesPanel.getSelectedPosition().id)) {
+      this.playerSnaps.delete(this.propertiesPanel.getSelectedPosition().id);
     }
-    this.horizontalSnap.set(this.selectedPosition.id, xLocation);
-    this.handleFieldPositionSelected(this.selectedPosition);
+    this.playerSnaps.set(this.propertiesPanel.getSelectedPosition().id, {x: xLocation, y: yLocation});
+    this.handleFieldPositionSelected(this.propertiesPanel.getSelectedPosition());
   }
 
   handleFieldClick() {
@@ -276,60 +261,65 @@ export class AppComponent implements AfterViewInit {
     this.positionBar.open();
   }
 
-  getSnapLocation(mouseX: number, mouseY: number) {
-    let prevY = 0;
-    this.xSnap = mouseX;
-    this.ySnap = mouseY;
-    const countVar = 2;
-
-    for (let count = 0; count < this.verticalSnap.length - countVar; count += countVar) {
-      const y = this.verticalSnap[count];
-      if (mouseY > y) {
-        prevY = y;
+  checkIfLocationOverlapsPosition(xPosition: number, yPosition: number): boolean {
+    let overlap = false;
+    for (const key of Array.from(this.positions.keys())) {
+      if (key === this.propertiesPanel.getSelectedPosition().id) {
         continue;
       }
-      if (mouseY > prevY && mouseY < y) {
-        if (Math.abs(prevY - mouseY) < Math.abs(y - mouseY)) {
-          this.ySnap = prevY;
-          break;
-        } else {
-          this.ySnap = y;
-          break;
-        }
+      const position: ComponentRef<DisplaypositionComponent> = this.positions.get(key);
+      const curRadius = position.location.nativeElement.offsetWidth;
+      const curLocation: [number, number] =
+        [position.location.nativeElement.offsetLeft + (curRadius / 2),
+         position.location.nativeElement.offsetTop + (curRadius / 2)];
+
+      const radiusLimit = curRadius + minPlayerGap;
+      overlap =
+        Math.sqrt((Math.pow((curLocation[0] - xPosition) , 2) + Math.pow((curLocation[1] - yPosition) , 2))) <= radiusLimit;
+      if (overlap) {
+        break;
       }
     }
+    return overlap;
+  }
+
+  getSnapLocation(mouseX: number, mouseY: number) {
+    let x = mouseX;
+    let y = mouseY;
 
     if (this.positions.size === 1) {
+      this.xSnap = x;
+      this.ySnap = y;
       return;
     }
 
-    for (const key of Array.from(this.horizontalSnap.keys())) {
-      const x = this.horizontalSnap.get(key);
-      if (Math.abs(mouseX - x) <= xSnapLimit) {
-        this.xSnap = x;
-        return;
+    for (const key of Array.from(this.playerSnaps.keys())) {
+      const pX = this.playerSnaps.get(key).x;
+      const pY = this.playerSnaps.get(key).y;
+
+      if (Math.abs(mouseX - pX) <= xSnapLimit) {
+        x = pX;
+        break;
+      }
+
+      if (Math.abs(mouseY - pY) <= ySnapLimit) {
+        y = pY;
+        break;
       }
     }
 
-    for (const key of Array.from(this.positions.keys())) {
-      if (key === this.selectedPosition.id) {
-        continue;
-      }
-      const pX: number =
-        this.positions.get(key).location.nativeElement.offsetLeft +
-        (this.positions.get(key).location.nativeElement.offsetWidth / 2);
-      const pY: number =
-        this.positions.get(key).location.nativeElement.offsetTop +
-        (this.positions.get(key).location.nativeElement.offsetHeight / 2);
-      const pWidth: number = this.positions.get(key).location.nativeElement.offsetWidth;
-      if ((Math.abs(this.ySnap - pY) <= 1) && (Math.abs(this.xSnap - pX) <= (xSnapLimit + pWidth))) {
-        if (this.xSnap < pX) {
-          this.xSnap = pX - pWidth - xSnapLimit;
-        } else {
-          this.xSnap = pX + pWidth + xSnapLimit;
-        }
-      }
+    if (this.controlBeingHeld) {
+      x = mouseX;
+      y = mouseY;
     }
+
+    if (this.checkIfLocationOverlapsPosition(mouseX, mouseY)) {
+      x = this.xSnap;
+      y = this.ySnap;
+    }
+
+    this.xSnap = x;
+    this.ySnap = y;
 
   }
 }

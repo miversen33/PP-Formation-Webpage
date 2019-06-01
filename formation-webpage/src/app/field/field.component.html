@@ -1,0 +1,18 @@
+<div class="content">
+  <div #field class="field"
+    (click)="handleFieldClick($event)">
+    <div>
+      <canvas #grid class="grid"></canvas>
+    </div>
+    <button mat-raised-button #positionBarToggle class="positionBarToggle" (click)="handlePositionBarButtonClicked()">{{positionButtonToggle}}</button>
+    <button mat-raised-button #detailBarToggle class="detailBarToggle" (click)="handleDetailBarButtonClicked()">{{detailButtonToggle}}</button>
+    <button mat-raised-button #resetButton class="resetButton" (click)="handleReset()">Reset</button>
+  </div>
+  <div class="detailBar">
+    <p class="formationName">Enter Formation Name Here</p>
+    <button mat-raised-button class="validateButton" disabled>
+      <p class="validateButtonTitle">Validate</p>
+    </button>
+    <p class="playName">Enter Play Name Here</p>
+  </div>
+</div>

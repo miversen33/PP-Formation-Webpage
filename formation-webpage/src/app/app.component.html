@@ -5,39 +5,26 @@
       <mat-sidenav #positionBar class="positionNavBar"
       opened=true mode="side" position="start"
       (openedStart)="onPositionBarOpen()" (closedStart)="onPositionBarClose()">
-      <app-positionbar #positionPanel
-        (positionSelected)="handlePositionSelected($event)"></app-positionbar>
+        <div>
+          <app-positionbar #positionPanel
+            (positionSelected)="handlePositionSelected($event)"></app-positionbar>
+        </div>
       </mat-sidenav>
       <mat-sidenav-content>
-        <div class="content">
-          <div #field class="field"
-            (click)="handleFieldClick()">
-            <div>
-              <canvas #grid class="grid"></canvas>
-            </div>
-            <button mat-raised-button #positionBarToggle class="positionBarToggle" (click)="positionBar.toggle()">{{positionButtonToggle}}</button>
-            <button mat-raised-button #detailBarToggle class="detailBarToggle" (click)="detailNavBar.toggle()">{{detailButtonToggle}}</button>
-            <button mat-raised-button #resetButton class="resetButton" (click)="handleReset()">Reset</button>
-          </div>
-          <div class="detailBar">
-            <p class="formationName">Enter Formation Name Here</p>
-            <button mat-raised-button class="validateButton" disabled>
-              <p class="validateButtonTitle">Validate</p>
-            </button>
-            <p class="playName">Enter Play Name Here</p>
-          </div>
+        <div>
+          <app-field #field class="field"
+            (fieldClicked)="handleFieldClick()"
+            (positionBarToggled)="positionBar.toggle()"
+            (detailBarToggled)="detailBar.toggle()"
+            (resetButtonPressed)="handleReset()">
+          </app-field>
         </div>
       </mat-sidenav-content>
-      <mat-sidenav #detailNavBar class="detailNavBar"
+      <mat-sidenav #detailBar class="detailNavBar"
         opened="false" mode="side" position="end"
         (openedStart)="onDetailBarOpen()" (closedStart)="onDetailBarClose()">
-        <div class="propertiesBar">
-          <h2>
-            {{selectedPosition.name}} Properties
-          </h2>
-        </div>
-        <div class="version">
-          {{version}}
+        <div>
+          <app-detailbar #propertiesPanel class="propertiesPanel"></app-detailbar>
         </div>
       </mat-sidenav>
     </mat-sidenav-container>

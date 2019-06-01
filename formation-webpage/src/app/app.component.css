@@ -4,42 +4,6 @@
   position: relative;
 }
 
-.positionClass{
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-.offensePanel{
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-.defensePanel{
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
-.specialTeamsPanel{
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
-
 .main{
   height: 100%;
   width: 100%;
@@ -57,92 +21,8 @@ mat-sidenav-container{
   flex-direction: column;
 }
 
-.positionNavBar{
-
-}
-
 .detailNavBar{
   width: 20%;
   position: absolute;
 }
 
-.positionBarToggle{
-  position: absolute;
-  top: 50%;
-  left: 0%;
-}
-
-.detailBarToggle{
-  position: absolute;
-  top: 50%;
-  right: 0%;
-}
-
-.resetButton{
-  position: absolute;
-  top: 0%;
-  right: 0%;
-}
-
-.field{
-  height: 95vh;
-  width: 100%;
-
-}
-
-.validateButton{
-  padding: 0;
-  height: 5vh;
-}
-
-.validateButtonTitle{
-  padding: 0;
-  margin: 0;
-}
-
-.detailBar{
-  width: 100%;
-  height: 5vh;
-  background-color: white;
-  left: 0;
-  bottom: 0;
-  position: absolute;
-  display: grid;
-  grid-template-columns: auto 18% auto;
-  grid-template-rows: auto;
-}
-
-.grid{
-  z-index: -1;
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 95vh;
-}
-
-.formationName{
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.playName{
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.version{
-  z-index: -1;
-  position: absolute;
-  right: 0;
-  bottom: 0;
-  padding-right: 5px;
-  padding-bottom: 5px;
-  color: gray;
-  -webkit-touch-callout: none;
-  -webkit-user-select: none;
-  -khtml-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-}
