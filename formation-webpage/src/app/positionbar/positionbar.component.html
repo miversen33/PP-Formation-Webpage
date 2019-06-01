@@ -1,0 +1,46 @@
+<div>
+  <mat-accordion #positionHolder multi="false">
+    <mat-expansion-panel #offensePanel class="offensePanel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Offense
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <mat-list class="positionList" dense>
+          <mat-list-item #positionClass class="positionClass"
+          (mousedown)="onMouseDown($event, position)"
+          (mouseup)="onMouseUp()"
+            *ngFor="let position of getOffensivePlayers()">{{position.name}}
+          </mat-list-item>
+      </mat-list>
+    </mat-expansion-panel>
+    <mat-expansion-panel #defensePanel class="defensePanel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Defense
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <mat-list class="positionList" dense>
+        <mat-list-item #positionClass class="positionClass"
+          (mousedown)="onMouseDown($event, position)"
+          (mouseup)="onMouseUp()"
+          *ngFor="let position of getDefensivePlayers()">{{position.name}}
+        </mat-list-item>
+      </mat-list>
+    </mat-expansion-panel>
+    <mat-expansion-panel #specialTeamsPanel class="specialTeamsPanel">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Special Teams
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+      <mat-list class="positionList" dense>
+        <mat-list-item #positionClass class="positionClass"
+          (mousedown)="onMouseDown($event, position)"
+          (mouseup)="onMouseUp()"
+          *ngFor="let position of getSpecialTeamsPlayers()">{{position.name}}
+        </mat-list-item>
+      </mat-list>
+    </mat-expansion-panel>
+  </mat-accordion>
+</div>

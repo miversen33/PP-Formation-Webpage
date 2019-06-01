@@ -7,11 +7,13 @@ import { PositionsService } from './services/positions.service';
 
 import { MaterialModule } from './material/material.module';
 import { DisplaypositionComponent } from './position/displayposition/displayposition.component';
+import { PositionbarComponent } from './positionbar/positionbar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     DisplaypositionComponent,
+    PositionbarComponent,
   ],
   imports: [
     BrowserModule,

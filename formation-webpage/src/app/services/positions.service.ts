@@ -7,15 +7,15 @@ export class PositionsService {
 
   constructor() { }
 
-  getOffensivePositions() {
+  getOffensivePositions(): Position[] {
     return OFFENSIVE_POSITIONS;
   }
 
-  getDefensivePositions() {
+  getDefensivePositions(): Position[] {
     return DEFENSIVE_POSITIONS;
   }
 
-  getSpecialTeamsPositions() {
+  getSpecialTeamsPositions(): Position[] {
     return SPECIAL_TEAMS_POSITIONS;
   }
 

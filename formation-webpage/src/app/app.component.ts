@@ -11,6 +11,8 @@ import { PositionsService } from './services/positions.service';
 import { DisplaypositionComponent } from './position/displayposition/displayposition.component';
 import { Position } from './position/position';
 import { MatSidenav, MatExpansionPanel, MatAccordion, MatButton } from '@angular/material';
+import { PositionbarComponent } from './positionbar/positionbar.component';
+import { PositionSelector } from './positionbar/positionSelector';
 
 const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: ''};
 const fieldLimit = 11;
@@ -48,11 +50,9 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('main', { read: ViewContainerRef}) main: ViewContainerRef;
   @ViewChild('field', { read: ViewContainerRef}) field: ViewContainerRef;
   @ViewChild('detailNavBar') detailPanel: MatSidenav;
-  @ViewChild('positionBar') positionPanel: MatSidenav;
+  @ViewChild('positionBar') positionBar: MatSidenav;
   @ViewChild('positionHolder') positionHolder: MatAccordion;
-  @ViewChild('offensePanel') offensePanel: MatExpansionPanel;
-  @ViewChild('defensePanel') defensePanel: MatExpansionPanel;
-  @ViewChild('specialTeamsPanel') specialTeamsPanel: MatExpansionPanel;
+  @ViewChild('positionPanel') positionPanel: PositionbarComponent;
   @ViewChild('positionBarToggle') leftToggleButton: MatButton;
   @ViewChild('grid') grid: ElementRef;
 
@@ -110,8 +110,7 @@ export class AppComponent implements AfterViewInit {
 
   constructor(
     private positionService: PositionsService,
-    private componentFactoryResolver: ComponentFactoryResolver ) {
-    this.positionService = positionService;
+    private componentFactoryResolver: ComponentFactoryResolver) {
   }
 
   handleMouseMove(event: MouseEvent) {
@@ -159,39 +158,25 @@ export class AppComponent implements AfterViewInit {
       this.detailButtonToggle = '>';
   }
 
-  getOffensivePlayers() {
-    return this.positionService.getOffensivePositions();
-  }
-
-  getDefensivePlayers() {
-    return this.positionService.getDefensivePositions();
-  }
-
-  getSpecialTeamsPlayers() {
-    return this.positionService.getSpecialTeamsPositions();
-  }
-
-  mousedown(event: MouseEvent, position: Position) {
+  handlePositionSelected(event: PositionSelector) {
     if (this.positions.size >= fieldLimit) {
       return;
     }
     this.isMouseDown = true;
 
-    const pCopy: Position = this.positionService.clonePosition(position, this.incrementedId);
+    const pCopy: Position = this.positionService.clonePosition(event.position, this.incrementedId);
     this.incrementedId ++;
     this.createPosition(pCopy);
 
-    this.moveHoldPositionElement(event.clientX, event.clientY);
+    this.moveHoldPositionElement(event.x, event.y);
   }
 
   addPosition(position: Position, component: ComponentRef<DisplaypositionComponent>) {
     this.positions.set(position.id, component);
     if (this.positions.size >= fieldLimit) {
       this.leftToggleButton.disabled = true;
-      this.offensePanel.close();
-      this.defensePanel.close();
-      this.specialTeamsPanel.close();
-      this.positionPanel.close();
+      this.positionPanel.closeAll();
+      this.positionBar.close();
     }
   }
 
@@ -207,7 +192,7 @@ export class AppComponent implements AfterViewInit {
     this.selectedPositionElement = null;
     if (this.positions.size < fieldLimit) {
       this.leftToggleButton.disabled = false;
-      this.positionPanel.open();
+      this.positionBar.open();
     }
   }
 
@@ -278,8 +263,8 @@ export class AppComponent implements AfterViewInit {
   }
 
   handleFieldClick() {
-    if (this.positionPanel.opened && this.positions.size >= fieldLimit) {
-      this.positionPanel.close();
+    if (this.positionBar.opened && this.positions.size >= fieldLimit) {
+      this.positionBar.close();
     }
   }
 
@@ -288,7 +273,7 @@ export class AppComponent implements AfterViewInit {
       this.removePosition(key);
     }
     this.detailPanel.close();
-    this.positionPanel.open();
+    this.positionBar.open();
   }
 
   getSnapLocation(mouseX: number, mouseY: number) {
