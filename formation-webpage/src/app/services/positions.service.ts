@@ -19,6 +19,10 @@ export class PositionsService {
     return SPECIAL_TEAMS_POSITIONS;
   }
 
+  getPositions(): Position[] {
+    return this.getOffensivePositions().concat(this.getDefensivePositions(), this.getSpecialTeamsPositions());
+  }
+
   clonePosition(position: Position, newId: number): Position {
     return { id: newId, name: position.name, abbreviatedName: position.abbreviatedName, side: position.side};
   }

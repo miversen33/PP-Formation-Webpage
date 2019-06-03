@@ -35,7 +35,6 @@ export class AppComponent implements AfterViewInit {
   shiftBeingHeld = false;
   shiftHandled = false;
   controlBeingHeld = false;
-  playerSnaps: Map<number, {x: number, y: number}> = new Map();
   xSnap: number;
   ySnap: number;
 
@@ -170,7 +169,6 @@ export class AppComponent implements AfterViewInit {
   }
 
   removePosition(position: number) {
-    this.playerSnaps.delete(position);
     this.positions.get(position).destroy();
     this.positions.delete(position);
     this.propertiesPanel.setSelectedPosition(basePosition);
@@ -221,7 +219,7 @@ export class AppComponent implements AfterViewInit {
          (mouseX > left)) &&
         ((mouseY < bottom) &&
          (mouseY > top))) {
-           this.placePositionOnField(mouseX, mouseY);
+           this.placePositionOnField();
     } else {
       this.positions.get(this.propertiesPanel.getSelectedPosition().id).destroy();
     }
@@ -239,11 +237,23 @@ export class AppComponent implements AfterViewInit {
     this.selectedPositionElement.style.borderColor = selectionColor;
   }
 
-  placePositionOnField(xLocation: number, yLocation: number) {
-    if (this.playerSnaps.keys().hasOwnProperty(this.propertiesPanel.getSelectedPosition().id)) {
-      this.playerSnaps.delete(this.propertiesPanel.getSelectedPosition().id);
-    }
-    this.playerSnaps.set(this.propertiesPanel.getSelectedPosition().id, {x: xLocation, y: yLocation});
+  onPositionBarOpened(): void {
+    this.field.positionPanelOpened();
+  }
+
+  onPositionBarClosed(): void {
+    this.field.positionPanelClosed();
+  }
+
+  onDetailBarClosed(): void {
+    this.field.detailPanelClosed();
+  }
+
+  onDetailBarOpened(): void {
+    this.field.detailPanelOpened();
+  }
+
+  placePositionOnField() {
     this.handleFieldPositionSelected(this.propertiesPanel.getSelectedPosition());
   }
 
@@ -293,9 +303,19 @@ export class AppComponent implements AfterViewInit {
       return;
     }
 
-    for (const key of Array.from(this.playerSnaps.keys())) {
-      const pX = this.playerSnaps.get(key).x;
-      const pY = this.playerSnaps.get(key).y;
+    for (const key of Array.from(this.positions.keys())) {
+      if (this.propertiesPanel.getSelectedPosition().id === key) {
+        continue;
+      }
+
+      const position = this.positions.get(key).location.nativeElement;
+
+      const pX =
+        position.offsetLeft +
+        (position.offsetWidth / 2);
+      const pY =
+        position.offsetTop +
+        (position.offsetHeight / 2);
 
       if (Math.abs(mouseX - pX) <= xSnapLimit) {
         x = pX;

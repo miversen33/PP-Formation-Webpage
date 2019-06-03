@@ -1,8 +1,18 @@
-<div>
-  <div class="propertiesBar">
+<div class="detailPanel">
+  <div class="propertiesHeader">
     <h2>
       {{selectedPosition.name}} Properties
     </h2>
+  </div>
+  <div #positionDetails class="positionDetails">
+    <mat-form-field>
+      <mat-label>Position</mat-label>
+      <mat-select>
+        <mat-option 
+        (onSelectionChange)="handlePositionChanged($event)"
+        *ngFor="let position of getAvailablePositions()" [value]="position">{{position.name}}</mat-option>
+      </mat-select>
+    </mat-form-field>
   </div>
   <div class="version">
     {{version}}

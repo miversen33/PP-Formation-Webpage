@@ -49,18 +49,34 @@ export class FieldComponent implements OnInit {
 
   flipDetailButton() {
     if (this.detailButtonToggle === '<') {
-      this.detailButtonToggle = '>';
+      this.detailPanelClosed();
     } else {
-      this.detailButtonToggle = '<';
+      this.detailPanelOpened();
     }
+  }
+
+  detailPanelOpened(): void {
+    this.detailButtonToggle = '>';
+  }
+
+  detailPanelClosed(): void {
+    this.detailButtonToggle = '<';
   }
 
   flipPositionButton() {
     if (this.positionButtonToggle === '<') {
-      this.positionButtonToggle = '>';
+      this.positionPanelClosed();
     } else {
-      this.positionButtonToggle = '<';
+      this.positionPanelOpened();
     }
+  }
+
+  positionPanelOpened(): void {
+    this.positionButtonToggle = '<';
+  }
+
+  positionPanelClosed(): void {
+    this.positionButtonToggle = '>';
   }
 
   disablePositionButton() {

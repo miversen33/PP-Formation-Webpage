@@ -4,7 +4,7 @@
     <mat-sidenav-container>
       <mat-sidenav #positionBar class="positionNavBar"
       opened=true mode="side" position="start"
-      (openedStart)="onPositionBarOpen()" (closedStart)="onPositionBarClose()">
+      (openedStart)="onPositionBarOpened()" (closedStart)="onPositionBarClosed()">
         <div>
           <app-positionbar #positionPanel
             (positionSelected)="handlePositionSelected($event)"></app-positionbar>
@@ -22,7 +22,7 @@
       </mat-sidenav-content>
       <mat-sidenav #detailBar class="detailNavBar"
         opened="false" mode="side" position="end"
-        (openedStart)="onDetailBarOpen()" (closedStart)="onDetailBarClose()">
+        (openedStart)="onDetailBarOpened()" (closedStart)="onDetailBarClosed()">
         <div>
           <app-detailbar #propertiesPanel class="propertiesPanel"></app-detailbar>
         </div>
