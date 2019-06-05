@@ -18,11 +18,12 @@ export class DetailbarComponent implements OnInit {
 
   version = '';
   selectedPosition = basePosition;
+  highlightedPosition = undefined;
 
   constructor(
     private versionService: VersionFetcherService,
     private positionService: PositionsService) {
-    this.version = versionService.getVersion();
+    this.version = this.versionService.getVersion();
   }
 
   ngOnInit() {
@@ -33,6 +34,7 @@ export class DetailbarComponent implements OnInit {
   }
 
   setSelectedPosition(position: Position): void {
+    this.highlightedPosition = undefined;
     this.selectedPosition = position;
     if (this.selectedPosition.id === 0) {
       this.positionDetailsRef.element.nativeElement.style.visibility = 'hidden';
@@ -45,13 +47,11 @@ export class DetailbarComponent implements OnInit {
     return this.positionService.getPositions();
   }
 
-  handlePositionChanged(option: MatOptionSelectionChange) {
-    console.log(this.selectedPosition);
+  handlePositionChanged(option: MatSelectChange) {
     const position: Position = option.source.value;
     this.selectedPosition.name = position.name;
     this.selectedPosition.abbreviatedName = position.abbreviatedName;
     this.selectedPosition.side = position.side;
-    console.log(this.selectedPosition);
   }
 
 }

@@ -7,9 +7,10 @@
   <div #positionDetails class="positionDetails">
     <mat-form-field>
       <mat-label>Position</mat-label>
-      <mat-select>
+      <mat-select
+        (selectionChange)="handlePositionChanged($event)"
+        [(value)]="highlightedPosition">
         <mat-option 
-        (onSelectionChange)="handlePositionChanged($event)"
         *ngFor="let position of getAvailablePositions()" [value]="position">{{position.name}}</mat-option>
       </mat-select>
     </mat-form-field>
