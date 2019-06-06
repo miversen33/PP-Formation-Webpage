@@ -4,13 +4,22 @@
   position: relative;
 }
 
-.main{
-  height: 100%;
-  width: 100%;
-}
-
 mat-sidenav-container{
   height: 100%;
+}
+
+
+.deletePosition{
+  width: 20%;
+  height: 15%;
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  margin-left: -10%;
+  margin-right: -10%;
+  z-index: 1;
+  visibility: hidden;
+  background-color: blue;
 }
 
 .content{

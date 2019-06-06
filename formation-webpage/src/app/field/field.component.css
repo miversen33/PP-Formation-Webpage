@@ -1,6 +1,13 @@
+.content{
+    height: 100vh;
+    width: 100%;
+    position: relative;
+}
+
 .field{
     height: 100vh;
     width: 100%;  
+    position: absolute;
 }
   
 .grid{

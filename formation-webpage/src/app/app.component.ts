@@ -4,7 +4,8 @@ import { Component,
   ViewContainerRef,
   ComponentFactoryResolver,
   HostListener,
-  AfterViewInit} from '@angular/core';
+  AfterViewInit,
+  ElementRef} from '@angular/core';
 
 import { PositionsService } from './services/positions.service';
 import { DisplaypositionComponent } from './position/displayposition/displayposition.component';
@@ -35,6 +36,7 @@ export class AppComponent implements AfterViewInit {
   shiftBeingHeld = false;
   shiftHandled = false;
   controlBeingHeld = false;
+  pendingDelete = false;
   xSnap: number;
   ySnap: number;
 
@@ -46,11 +48,13 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('field', { read: ViewContainerRef}) fieldRef: ViewContainerRef;
   @ViewChild('field') field: FieldComponent;
   @ViewChild('detailBar') detailPanel: MatSidenav;
+  @ViewChild('positionBar', { read: ViewContainerRef}) positionBarRef: ViewContainerRef;
   @ViewChild('positionBar') positionBar: MatSidenav;
   @ViewChild('propertiesPanel') propertiesPanel: DetailbarComponent;
   @ViewChild('positionHolder') positionHolder: MatAccordion;
   @ViewChild('positionPanel') positionPanel: PositionbarComponent;
   @ViewChild('positionBarToggle') leftToggleButton: MatButton;
+  @ViewChild('deletePosition') deletePosition: ElementRef;
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardDownEvent(event: KeyboardEvent) {
@@ -118,12 +122,27 @@ export class AppComponent implements AfterViewInit {
       !this.isMouseDown || this.selectedPositionElement === undefined || this.selectedPositionElement === null) {
       return;
     }
+
     if (!this.shiftHandled && this.positions.size < fieldLimit && this.shiftBeingHeld) {
       this.shiftHandled = true;
       this.cloneSelectedPosition();
       this.moveHoldPositionElement(event.clientX, event.clientY);
     } else {
       this.moveHoldPositionElement(event.clientX, event.clientY);
+    }
+
+    this.deletePosition.nativeElement.style.visibility = 'visible';
+    const offsetLeft = this.getPositionBarWidth();
+    const curLeft = this.selectedPositionElement.offsetLeft - offsetLeft;
+    const curTop = this.selectedPositionElement.offsetTop;
+    const curRight = this.selectedPositionElement.offsetWidth + curLeft;
+    const curBottom = this.selectedPositionElement.offsetHeight + curTop;
+    if (this.checkIfMoveIsInDelete(curLeft, curTop, curRight, curBottom)) {
+      this.pendingDelete = true;
+      this.deletePosition.nativeElement.style.backgroundColor = 'red';
+    } else {
+      this.pendingDelete = false;
+      this.deletePosition.nativeElement.style.backgroundColor = 'blue';
     }
   }
 
@@ -223,7 +242,33 @@ export class AppComponent implements AfterViewInit {
     } else {
       this.positions.get(this.propertiesPanel.getSelectedPosition().id).destroy();
     }
+
+    if (this.pendingDelete) {
+      this.deletePosition.nativeElement.style.backgroundColor = 'blue';
+      this.removeSelectedPosition();
+    }
+    this.deletePosition.nativeElement.style.visibility = 'hidden';
     this.selectedPositionElement = null;
+  }
+
+  checkIfMoveIsInDelete(left: number, top: number, right: number, bottom: number): boolean {
+    const delLeft = this.deletePosition.nativeElement.offsetLeft;
+    const delTop = this.deletePosition.nativeElement.offsetTop;
+    const delRight = this.deletePosition.nativeElement.offsetWidth + delLeft;
+    const delBottom = this.deletePosition.nativeElement.offsetHeight + delTop;
+
+    const horizontalContained = ((delLeft <= left && delRight >= left) || (delLeft <= right && delRight >= right));
+    const verticalContained = ((delTop <= top && delBottom >= top) || (delTop <= bottom && delBottom >= bottom));
+
+    return (horizontalContained && verticalContained);
+  }
+
+  getPositionBarWidth(): number {
+    if (this.positionBar.opened) {
+      return this.positionBarRef.element.nativeElement.offsetWidth;
+    } else {
+      return 0;
+    }
   }
 
   handleFieldPositionSelected(position: Position) {
@@ -269,6 +314,16 @@ export class AppComponent implements AfterViewInit {
     }
     this.detailPanel.close();
     this.positionBar.open();
+  }
+
+  handleEnterDeletePosition() {
+    this.pendingDelete = true;
+    this.deletePosition.nativeElement.style.backgroundColor = 'red';
+  }
+
+  handleExitDeletePosition() {
+    this.pendingDelete = false;
+    this.deletePosition.nativeElement.style.backgroundColor = 'blue';
   }
 
   checkIfLocationOverlapsPosition(xPosition: number, yPosition: number): boolean {
