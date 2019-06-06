@@ -1,9 +1,9 @@
-import { Component, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, OnInit, ViewChild, ViewContainerRef, ElementRef, Output, EventEmitter } from '@angular/core';
 import { VersionFetcherService } from '../services/verionfetcher.service';
 import { Position } from '../position/position';
-import { MaterialModule } from '../material/material.module';
 import { PositionsService } from '../services/positions.service';
-import { MatSelectChange, MatOptionSelectionChange } from '@angular/material';
+import { MatSelectChange} from '@angular/material';
+import { Location } from '../location';
 
 const basePosition: Position = {id: 0, name: '', abbreviatedName: '', side: ''};
 
@@ -15,10 +15,16 @@ const basePosition: Position = {id: 0, name: '', abbreviatedName: '', side: ''};
 export class DetailbarComponent implements OnInit {
 
   @ViewChild('positionDetails', { read: ViewContainerRef}) positionDetailsRef: ViewContainerRef;
+  @ViewChild('xInput') xInput: ElementRef;
+  @ViewChild('yInput') yInput: ElementRef;
+
+  @Output() selectedPositionLocationChanged = new EventEmitter<Location>();
 
   version = '';
   selectedPosition = basePosition;
   highlightedPosition = undefined;
+  xValue: number;
+  yValue: number;
 
   constructor(
     private versionService: VersionFetcherService,
@@ -27,15 +33,23 @@ export class DetailbarComponent implements OnInit {
   }
 
   ngOnInit() {
+
   }
 
   getSelectedPosition(): Position {
     return this.selectedPosition;
   }
 
-  setSelectedPosition(position: Position): void {
+  setSelectedPosition(position: Position, x: number, y: number): void {
+    if (this.selectedPosition.id === position.id) {
+      return;
+    }
     this.highlightedPosition = undefined;
     this.selectedPosition = position;
+    this.xValue = x;
+    this.yValue = y;
+    // this.xValue = this.positionService.getPositionLocationOnField(position)[0];
+    // this.yValue = this.positionService.getPositionLocationOnField(position)[1];
     if (this.selectedPosition.id === 0) {
       this.positionDetailsRef.element.nativeElement.style.visibility = 'hidden';
     } else {
@@ -54,4 +68,12 @@ export class DetailbarComponent implements OnInit {
     this.selectedPosition.side = position.side;
   }
 
+  handleChange() {
+    this.selectedPositionLocationChanged.emit({x: this.xInput.nativeElement.value, y: this.yInput.nativeElement.value});
+  }
+
+  moveSelectedPosition(x: number, y: number) {
+    this.xValue = x;
+    this.yValue = y;
+  }
 }

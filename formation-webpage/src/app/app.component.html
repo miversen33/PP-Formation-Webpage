@@ -25,7 +25,9 @@
         opened="false" mode="side" position="end"
         (openedStart)="onDetailBarOpened()" (closedStart)="onDetailBarClosed()">
         <div>
-          <app-detailbar #propertiesPanel class="propertiesPanel"></app-detailbar>
+          <app-detailbar #propertiesPanel class="propertiesPanel"
+          (selectedPositionLocationChanged)="handlePositionMoved($event)"
+          ></app-detailbar>
         </div>
       </mat-sidenav>
     </mat-sidenav-container>

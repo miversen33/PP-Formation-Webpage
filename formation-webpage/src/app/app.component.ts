@@ -15,12 +15,14 @@ import { PositionbarComponent } from './positionbar/positionbar.component';
 import { PositionSelector } from './positionbar/positionSelector';
 import { DetailbarComponent } from './detailbar/detailbar.component';
 import { FieldComponent } from './field/field.component';
+import { Location } from './location';
 
 const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: ''};
 const fieldLimit = 11;
 const gridHeightLimit = 20;
 const minPlayerGap = 5;
 const selectionColor = 'yellow';
+const deleteColor = 'red';
 const xSnapLimit = 20;
 const ySnapLimit = 15;
 
@@ -58,10 +60,6 @@ export class AppComponent implements AfterViewInit {
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardDownEvent(event: KeyboardEvent) {
-    if ((event.key === 'Delete' || event.key === 'Backspace') && this.propertiesPanel.getSelectedPosition().id !== 0) {
-      this.removeSelectedPosition();
-      this.detailPanel.close();
-    }
     if (event.key === 'Escape') {
       this.detailPanel.close();
     }
@@ -159,6 +157,9 @@ export class AppComponent implements AfterViewInit {
     this.getSnapLocation(inX, inY);
     this.selectedPositionElement.style.left = (this.xSnap - this.selectedPositionElement.offsetWidth / 2) + 'px';
     this.selectedPositionElement.style.top = (this.ySnap - this.selectedPositionElement.offsetHeight / 2) + 'px';
+
+    const location = this.getSelectedPositionLocation();
+    this.propertiesPanel.moveSelectedPosition(location[0], location[1]);
   }
 
   handlePositionSelected(event: PositionSelector) {
@@ -172,6 +173,12 @@ export class AppComponent implements AfterViewInit {
     this.createPosition(pCopy);
 
     this.moveHoldPositionElement(event.x, event.y);
+  }
+
+  handlePositionMoved(newLocation: Location) {
+    // TODO THIS IS WHERE WE ARE LEAVING OFF
+    // WE CANNOT MANUALLY UPDATE POSITION LOCATION YET
+    this.moveHoldPositionElement(newLocation.x, newLocation.y);
   }
 
   addPosition(position: Position, component: ComponentRef<DisplaypositionComponent>) {
@@ -190,7 +197,7 @@ export class AppComponent implements AfterViewInit {
   removePosition(position: number) {
     this.positions.get(position).destroy();
     this.positions.delete(position);
-    this.propertiesPanel.setSelectedPosition(basePosition);
+    this.propertiesPanel.setSelectedPosition(basePosition, 0, 0);
     this.selectedPositionElement = null;
     if (this.positions.size < fieldLimit) {
       this.field.enablePositionButton();
@@ -271,15 +278,24 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
+  getSelectedPositionLocation(): [number, number] {
+    const left = this.selectedPositionElement.offsetLeft + (this.selectedPositionElement.offsetWidth / 2);
+    const top = this.selectedPositionElement.offsetTop + (this.selectedPositionElement.offsetHeight / 2);
+
+    return [left, top];
+  }
+
   handleFieldPositionSelected(position: Position) {
     this.isMouseDown = true;
     if (this.propertiesPanel.getSelectedPosition().id !== 0) {
       this.positions.get(this.propertiesPanel.getSelectedPosition().id).location.nativeElement.style.borderColor = 'gray';
     }
-    this.propertiesPanel.setSelectedPosition(position);
-    this.detailPanel.open();
     this.selectedPositionElement = this.positions.get(position.id).location.nativeElement;
     this.selectedPositionElement.style.borderColor = selectionColor;
+    const selectedLocation = this.getSelectedPositionLocation();
+    this.propertiesPanel.setSelectedPosition(position, selectedLocation[0], selectedLocation[1]);
+
+    this.detailPanel.open();
   }
 
   onPositionBarOpened(): void {
