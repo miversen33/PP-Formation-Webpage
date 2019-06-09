@@ -176,6 +176,10 @@ export class AppComponent implements AfterViewInit {
   }
 
   handlePositionMoved(newLocation: Location) {
+    if (this.checkIfLocationOverlapsPosition(newLocation.x, newLocation.y)) {
+      this.propertiesPanel.rollbackMovement();
+      return;
+    }
     this.selectedPositionElement = this.positions.get(this.propertiesPanel.getSelectedPosition().id).location.nativeElement;
     this.moveHoldPositionElement(newLocation.x, newLocation.y);
     this.selectedPositionElement = null;

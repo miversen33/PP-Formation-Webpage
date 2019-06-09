@@ -25,6 +25,7 @@ export class DetailbarComponent implements OnInit {
   highlightedPosition = undefined;
   xValue: number;
   yValue: number;
+  previousLocation: Location = new Location();
 
   constructor(
     private versionService: VersionFetcherService,
@@ -71,7 +72,13 @@ export class DetailbarComponent implements OnInit {
   }
 
   moveSelectedPosition(x: number, y: number) {
+    this.previousLocation = {x: this.xValue, y: this.yValue};
     this.xValue = x;
     this.yValue = y;
+  }
+
+  rollbackMovement() {
+    this.xValue = this.previousLocation.x;
+    this.yValue = this.previousLocation.y;
   }
 }
