@@ -48,8 +48,6 @@ export class DetailbarComponent implements OnInit {
     this.selectedPosition = position;
     this.xValue = x;
     this.yValue = y;
-    // this.xValue = this.positionService.getPositionLocationOnField(position)[0];
-    // this.yValue = this.positionService.getPositionLocationOnField(position)[1];
     if (this.selectedPosition.id === 0) {
       this.positionDetailsRef.element.nativeElement.style.visibility = 'hidden';
     } else {

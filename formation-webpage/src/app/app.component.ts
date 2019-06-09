@@ -176,9 +176,9 @@ export class AppComponent implements AfterViewInit {
   }
 
   handlePositionMoved(newLocation: Location) {
-    // TODO THIS IS WHERE WE ARE LEAVING OFF
-    // WE CANNOT MANUALLY UPDATE POSITION LOCATION YET
+    this.selectedPositionElement = this.positions.get(this.propertiesPanel.getSelectedPosition().id).location.nativeElement;
     this.moveHoldPositionElement(newLocation.x, newLocation.y);
+    this.selectedPositionElement = null;
   }
 
   addPosition(position: Position, component: ComponentRef<DisplaypositionComponent>) {
