@@ -177,7 +177,6 @@ export class AppComponent implements AfterViewInit {
 
   handlePositionMoved(newLocation: Location) {
     if (this.checkIfLocationOverlapsPosition(newLocation.x, newLocation.y)) {
-      this.propertiesPanel.rollbackMovement();
       return;
     }
     this.selectedPositionElement = this.positions.get(this.propertiesPanel.getSelectedPosition().id).location.nativeElement;
@@ -224,6 +223,7 @@ export class AppComponent implements AfterViewInit {
     this.selectedPositionElement.style.borderWidth = '2px';
     this.selectedPositionElement.style.borderRadius = '50%';
     this.selectedPositionElement.style.borderColor = 'gray';
+    // Weird bug where releasing the mouse while in an area that is not droppable, causes this to not fire right.
     this.selectedPositionElement.addEventListener('mouseup', this.mouseup.bind(this));
     this.selectedPositionElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
     componentRef.instance.selected.subscribe((p: Position) => {
@@ -251,7 +251,7 @@ export class AppComponent implements AfterViewInit {
          (mouseY > top))) {
            this.placePositionOnField();
     } else {
-      this.positions.get(this.propertiesPanel.getSelectedPosition().id).destroy();
+      this.removePosition(this.propertiesPanel.getSelectedPosition().id);
     }
 
     if (this.pendingDelete) {
@@ -394,12 +394,10 @@ export class AppComponent implements AfterViewInit {
 
       if (Math.abs(mouseX - pX) <= xSnapLimit) {
         x = pX;
-        break;
       }
 
       if (Math.abs(mouseY - pY) <= ySnapLimit) {
         y = pY;
-        break;
       }
     }
 
@@ -408,6 +406,7 @@ export class AppComponent implements AfterViewInit {
       y = mouseY;
     }
 
+    // Something is borking because this is not catching it every time
     if (this.checkIfLocationOverlapsPosition(mouseX, mouseY)) {
       x = this.xSnap;
       y = this.ySnap;

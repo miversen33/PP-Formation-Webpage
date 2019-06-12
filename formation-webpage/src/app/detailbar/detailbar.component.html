@@ -18,13 +18,17 @@
     </div>
     <div class="locationHolder">
       <h3 class="locationHeader">Location</h3>
-      <input matInput #xInput class="locationInput"
-        (change)="handleChange()"
-        [(value)]="xValue">
+      <div class="locationInputX">
+        <input matInput #xInput
+          (change)="handleChange()"
+          [(value)]="xValue">
+      </div>
       <h3>,</h3>
-      <input matInput #yInput class="locationInput"
-        (change)="handleChange()"
-        [(value)]="yValue">
+      <div class="locationInputY">
+        <input matInput #yInput
+          (change)="handleChange()"
+          [(value)]="yValue">
+      </div>
     </div>
   </div>
   <div class="version">

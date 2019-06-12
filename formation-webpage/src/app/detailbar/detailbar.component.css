@@ -27,12 +27,14 @@
 }
 
 .locationHeader{
-  padding-right: 5px;
+  padding-right: 2px;
   padding-bottom: 1px;
 }
 
 .locationInput{
-  padding-right: 5px;
-  padding-left: 5px;
-  width: 25px;
+  /* margin-left: 10px; */
+  /* margin-right: 5px; */
+  /* margin-top: auto; */
+  /* margin-bottom: auto; */
+  /* width: auto; */
 }
