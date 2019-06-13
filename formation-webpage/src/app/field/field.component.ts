@@ -86,5 +86,9 @@ export class FieldComponent implements OnInit {
   enablePositionButton() {
     this.positionToggleButton.disabled = false;
   }
+
+  handleBallDrag(event) {
+    console.log(event);
+  }
 }
 

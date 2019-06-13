@@ -11,6 +11,8 @@ import { PositionbarComponent } from './positionbar/positionbar.component';
 import { DetailbarComponent } from './detailbar/detailbar.component';
 import { FieldComponent } from './field/field.component';
 
+import { DragDropModule } from '@angular/cdk/drag-drop';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -22,7 +24,8 @@ import { FieldComponent } from './field/field.component';
   imports: [
     BrowserModule,
     BrowserAnimationsModule,
-    MaterialModule
+    MaterialModule,
+    DragDropModule
   ],
   entryComponents: [
     DisplaypositionComponent

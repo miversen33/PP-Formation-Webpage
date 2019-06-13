@@ -70,3 +70,32 @@
     margin-right: auto;
 }
   
+.innerBall{
+    height: 17px;
+    width: 30px;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    background-color: #653403;
+    border-radius: 50%;
+    display: inline-block;
+    /* transform: translate(-50%, -50%); */
+}
+
+/* .ballStripe{
+    height: 1px;
+    width: 26px;
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    background-color: white;
+    transform: translate(-50%, -50%);
+}
+
+.leftBallRound{
+
+}
+
+.rightBallRound{
+
+} */
