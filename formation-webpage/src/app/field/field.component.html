@@ -1,14 +1,7 @@
 <div class="content">
   <div #field class="field"
     (click)="handleFieldClick($event)">
-    <div #ball cdkDrag
-    (cdkDragMoved)="handleBallDrag($event)"
-    (drag)="handleBallDrag($event)">
-      <span class="innerBall"></span>
-      <span class="ballStripe"></span>
-      <span class="leftBallRound"></span>
-      <span class="rightBallRound"></span>
-    </div>
+    <span #ball class="ball" cdkDrag (cdkDragMoved)="handleBallDrag($event)"></span>
     <div>
       <canvas #grid class="grid"></canvas>
     </div>

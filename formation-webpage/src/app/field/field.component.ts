@@ -16,6 +16,7 @@ export class FieldComponent implements OnInit {
   @ViewChild('positionBarToggle') positionToggleButton: MatButton;
   @ViewChild('detailBarToggle') detailToggleButton: MatButton;
   @ViewChild('grid') grid: ElementRef;
+  @ViewChild('ball') ball: ElementRef;
 
   detailButtonToggle = '<';
   positionButtonToggle = '<';
