@@ -332,6 +332,7 @@ export class AppComponent implements AfterViewInit {
     for (const key of Array.from(this.positions.keys())) {
       this.removePosition(key);
     }
+    this.field.resetBallLocation();
     this.detailPanel.close();
     this.positionBar.open();
   }

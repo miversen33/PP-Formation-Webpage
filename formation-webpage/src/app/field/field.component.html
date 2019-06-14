@@ -1,7 +1,11 @@
 <div class="content">
   <div #field class="field"
     (click)="handleFieldClick($event)">
-    <span #ball class="ball" cdkDrag (cdkDragMoved)="handleBallDrag($event)"></span>
+    <div #ball class="ball" cdkDrag 
+    (cdkDragMoved)="handleBallDrag()"
+    (cdkDragReleased)="handleBallDragDropped($event)">
+      <!-- <span class="ball" cdkDrag (cdkDragMoved)="handleBallDrag()"></span> -->
+    </div>
     <div>
       <canvas #grid class="grid"></canvas>
     </div>
