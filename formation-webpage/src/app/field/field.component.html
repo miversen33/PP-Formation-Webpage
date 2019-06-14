@@ -2,7 +2,7 @@
   <div #field class="field"
     (click)="handleFieldClick($event)">
     <div #ball class="ball" cdkDrag 
-    (cdkDragMoved)="handleBallDrag()"
+    (cdkDragMoved)="handleBallDrag($event)"
     (cdkDragReleased)="handleBallDragDropped($event)">
       <!-- <span class="ball" cdkDrag (cdkDragMoved)="handleBallDrag()"></span> -->
     </div>

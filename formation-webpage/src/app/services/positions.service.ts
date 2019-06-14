@@ -24,7 +24,7 @@ export class PositionsService {
   }
 
   clonePosition(position: Position, newId: number): Position {
-    return { id: newId, name: position.name, abbreviatedName: position.abbreviatedName, side: position.side};
+    return { id: newId, name: position.name, abbreviatedName: position.abbreviatedName, side: position.side, x: position.x, y: position.y};
   }
 
   getPositionLocationOnField(position: Position): [number, number] {

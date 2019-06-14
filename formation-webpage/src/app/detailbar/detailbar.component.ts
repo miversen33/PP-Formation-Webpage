@@ -5,7 +5,7 @@ import { PositionsService } from '../services/positions.service';
 import { MatSelectChange} from '@angular/material';
 import { Location } from '../location';
 
-const basePosition: Position = {id: 0, name: '', abbreviatedName: '', side: ''};
+const basePosition: Position = {id: 0, name: '', abbreviatedName: '', side: '', x: 0, y: 0};
 
 @Component({
   selector: 'app-detailbar',
@@ -40,14 +40,14 @@ export class DetailbarComponent implements OnInit {
     return this.selectedPosition;
   }
 
-  setSelectedPosition(position: Position, x: number, y: number): void {
+  setSelectedPosition(position: Position): void {
     if (this.selectedPosition.id === position.id) {
       return;
     }
     this.highlightedPosition = undefined;
     this.selectedPosition = position;
-    this.xValue = x;
-    this.yValue = y;
+    this.xValue = position.x;
+    this.yValue = position.y;
     if (this.selectedPosition.id === 0) {
       this.positionDetailsRef.element.nativeElement.style.visibility = 'hidden';
     } else {
@@ -75,6 +75,8 @@ export class DetailbarComponent implements OnInit {
     y = Math.floor(y);
     this.xValue = x;
     this.yValue = y;
+    this.selectedPosition.x = x;
+    this.selectedPosition.y = y;
   }
 
 }

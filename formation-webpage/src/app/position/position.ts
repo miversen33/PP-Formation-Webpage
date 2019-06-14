@@ -3,4 +3,6 @@ export class Position {
   name: string;
   abbreviatedName: string;
   side: string;
+  x = 0;
+  y = 0;
 }

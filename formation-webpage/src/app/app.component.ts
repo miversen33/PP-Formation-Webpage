@@ -17,7 +17,7 @@ import { DetailbarComponent } from './detailbar/detailbar.component';
 import { FieldComponent } from './field/field.component';
 import { Location } from './location';
 
-const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: ''};
+const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: '', x: 0, y: 0};
 const fieldLimit = 11;
 const gridHeightLimit = 20;
 const minPlayerGap = 5;
@@ -39,8 +39,8 @@ export class AppComponent implements AfterViewInit {
   shiftHandled = false;
   controlBeingHeld = false;
   pendingDelete = false;
-  xSnap: number;
-  ySnap: number;
+  // xSnap: number;
+  // ySnap: number;
 
   selectedPositionElement: HTMLElement;
 
@@ -154,12 +154,13 @@ export class AppComponent implements AfterViewInit {
     if (this.selectedPositionElement === null || this.selectedPositionElement === undefined) {
       return;
     }
-    this.getSnapLocation(inX, inY);
-    this.selectedPositionElement.style.left = (this.xSnap - this.selectedPositionElement.offsetWidth / 2) + 'px';
-    this.selectedPositionElement.style.top = (this.ySnap - this.selectedPositionElement.offsetHeight / 2) + 'px';
+    const snaps = this.getSnapLocation(inX, inY);
+    const x = snaps[0] - (this.selectedPositionElement.offsetWidth / 2);
+    const y = snaps[1] - (this.selectedPositionElement.offsetWidth / 2);
+    this.propertiesPanel.moveSelectedPosition(x, y);
 
-    const location = this.getSelectedPositionLocation();
-    this.propertiesPanel.moveSelectedPosition(location[0], location[1]);
+    this.selectedPositionElement.style.left = this.propertiesPanel.getSelectedPosition().x + 'px';
+    this.selectedPositionElement.style.top = this.propertiesPanel.getSelectedPosition().y + 'px';
   }
 
   handlePositionSelected(event: PositionSelector) {
@@ -200,7 +201,7 @@ export class AppComponent implements AfterViewInit {
   removePosition(position: number) {
     this.positions.get(position).destroy();
     this.positions.delete(position);
-    this.propertiesPanel.setSelectedPosition(basePosition, 0, 0);
+    this.propertiesPanel.setSelectedPosition(basePosition);
     this.selectedPositionElement = null;
     if (this.positions.size < fieldLimit) {
       this.field.enablePositionButton();
@@ -282,13 +283,6 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
-  getSelectedPositionLocation(): [number, number] {
-    const left = this.selectedPositionElement.offsetLeft + (this.selectedPositionElement.offsetWidth / 2);
-    const top = this.selectedPositionElement.offsetTop + (this.selectedPositionElement.offsetHeight / 2);
-
-    return [left, top];
-  }
-
   handleFieldPositionSelected(position: Position) {
     this.isMouseDown = true;
     if (this.propertiesPanel.getSelectedPosition().id !== 0) {
@@ -296,8 +290,7 @@ export class AppComponent implements AfterViewInit {
     }
     this.selectedPositionElement = this.positions.get(position.id).location.nativeElement;
     this.selectedPositionElement.style.borderColor = selectionColor;
-    const selectedLocation = this.getSelectedPositionLocation();
-    this.propertiesPanel.setSelectedPosition(position, selectedLocation[0], selectedLocation[1]);
+    this.propertiesPanel.setSelectedPosition(position);
 
     this.detailPanel.open();
   }
@@ -369,14 +362,20 @@ export class AppComponent implements AfterViewInit {
     return overlap;
   }
 
-  getSnapLocation(mouseX: number, mouseY: number) {
+  getSnapLocation(mouseX: number, mouseY: number): [number, number] {
+    const cacheX = this.propertiesPanel.getSelectedPosition().x;
+    const cacheY = this.propertiesPanel.getSelectedPosition().y;
     let x = mouseX;
     let y = mouseY;
 
     if (this.positions.size === 1) {
-      this.xSnap = x;
-      this.ySnap = y;
-      return;
+      return [x, y];
+    }
+
+    if (this.checkIfLocationOverlapsPosition(mouseX, mouseY)) {
+      return [cacheX, cacheY];
+      // x = this.xSnap;
+      // y = this.ySnap;
     }
 
     for (const key of Array.from(this.positions.keys())) {
@@ -409,12 +408,16 @@ export class AppComponent implements AfterViewInit {
 
     // Something is borking because this is not catching it every time
     if (this.checkIfLocationOverlapsPosition(mouseX, mouseY)) {
-      x = this.xSnap;
-      y = this.ySnap;
+      console.log(`cacheX is ${cacheX} and cacheY is ${cacheY}`);
+      return [cacheX, cacheY];
+      // x = this.xSnap;
+      // y = this.ySnap;
     }
 
-    this.xSnap = x;
-    this.ySnap = y;
+    return [x, y];
+
+    // this.xSnap = x;
+    // this.ySnap = y;
 
   }
 }

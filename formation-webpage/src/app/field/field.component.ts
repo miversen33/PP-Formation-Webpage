@@ -1,7 +1,7 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, Renderer2 } from '@angular/core';
 import { MatButton } from '@angular/material';
 import { Location } from '../location';
-import { CdkDragEnd, CdkDragMove, CdkDragDrop } from '@angular/cdk/drag-drop';
+import { CdkDragRelease } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-field',
@@ -35,6 +35,8 @@ export class FieldComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit() {
     this.ball = this.ballRef.nativeElement;
+    this.ballLocation = {x: this.ball.offsetLeft + (this.ball.offsetWidth / 2),
+                         y: this.ball.offsetTop + (this.ball.offsetHeight / 2) };
   }
 
   getCanvas() {
@@ -99,19 +101,24 @@ export class FieldComponent implements OnInit, AfterViewInit {
     this.positionToggleButton.disabled = false;
   }
 
-  handleBallDrag() {
-    this.ballMoved.emit(
-      {x: this.ball.offsetLeft + (this.ball.offsetWidth / 2),
-       y: this.ball.offsetTop + (this.ball.offsetHeight / 2)}
-    );
+  handleBallDrag(event) {
+    this.ballLocation.x = event.event.x - (this.ball.offsetWidth / 2);
+    this.ballLocation.y = event.event.y - (this.ball.offsetHeight / 2);
+    this.ballMoved.emit(this.getBallLocation());
   }
 
-  handleBallDragDropped(event) {
+  getBallLocation(): Location {
+    return {x: this.ballLocation.x, y: this.ballLocation.y};
+  }
+
+  handleBallDragDropped(event: CdkDragRelease) {
     this.source = event.source;
   }
 
   resetBallLocation() {
-    this.source._dragRef.reset();
+    if (!(this.source === undefined || this.source === null)) {
+      this.source._dragRef.reset();
+    }
   }
 }
 
