@@ -155,6 +155,11 @@ export class AppComponent implements AfterViewInit {
       return;
     }
     const snaps = this.getSnapLocation(inX, inY);
+
+    if (snaps === undefined) {
+      return;
+    }
+
     const x = snaps[0] - (this.selectedPositionElement.offsetWidth / 2);
     const y = snaps[1] - (this.selectedPositionElement.offsetWidth / 2);
     this.propertiesPanel.moveSelectedPosition(x, y);
@@ -363,8 +368,6 @@ export class AppComponent implements AfterViewInit {
   }
 
   getSnapLocation(mouseX: number, mouseY: number): [number, number] {
-    const cacheX = this.propertiesPanel.getSelectedPosition().x;
-    const cacheY = this.propertiesPanel.getSelectedPosition().y;
     let x = mouseX;
     let y = mouseY;
 
@@ -373,9 +376,7 @@ export class AppComponent implements AfterViewInit {
     }
 
     if (this.checkIfLocationOverlapsPosition(mouseX, mouseY)) {
-      return [cacheX, cacheY];
-      // x = this.xSnap;
-      // y = this.ySnap;
+      return undefined;
     }
 
     for (const key of Array.from(this.positions.keys())) {
@@ -392,11 +393,11 @@ export class AppComponent implements AfterViewInit {
         position.offsetTop +
         (position.offsetHeight / 2);
 
-      if (Math.abs(mouseX - pX) <= xSnapLimit) {
+      if (Math.abs(mouseX - pX) <= xSnapLimit && !this.checkIfLocationOverlapsPosition(pX, y)) {
         x = pX;
       }
 
-      if (Math.abs(mouseY - pY) <= ySnapLimit) {
+      if (Math.abs(mouseY - pY) <= ySnapLimit && !this.checkIfLocationOverlapsPosition(x, pY)) {
         y = pY;
       }
     }
@@ -406,18 +407,6 @@ export class AppComponent implements AfterViewInit {
       y = mouseY;
     }
 
-    // Something is borking because this is not catching it every time
-    if (this.checkIfLocationOverlapsPosition(mouseX, mouseY)) {
-      console.log(`cacheX is ${cacheX} and cacheY is ${cacheY}`);
-      return [cacheX, cacheY];
-      // x = this.xSnap;
-      // y = this.ySnap;
-    }
-
     return [x, y];
-
-    // this.xSnap = x;
-    // this.ySnap = y;
-
   }
 }
