@@ -5,7 +5,8 @@ import { Component,
   ComponentFactoryResolver,
   HostListener,
   AfterViewInit,
-  ElementRef} from '@angular/core';
+  ElementRef,
+  Renderer2} from '@angular/core';
 
 import { PositionsService } from './services/positions.service';
 import { DisplaypositionComponent } from './position/displayposition/displayposition.component';
@@ -16,6 +17,8 @@ import { PositionSelector } from './positionbar/positionSelector';
 import { DetailbarComponent } from './detailbar/detailbar.component';
 import { FieldComponent } from './field/field.component';
 import { Location } from './location';
+import { CdkDragMove, CdkDragRelease } from '@angular/cdk/drag-drop/typings/drag-events';
+import { DragRef } from '@angular/cdk/drag-drop';
 
 const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: '', x: 0, y: 0};
 const fieldLimit = 11;
@@ -39,8 +42,9 @@ export class AppComponent implements AfterViewInit {
   shiftHandled = false;
   controlBeingHeld = false;
   pendingDelete = false;
-  // xSnap: number;
-  // ySnap: number;
+  ballLocation: Location = new Location();
+  initialBallLocation: Location = new Location();
+  cacheBallDragReference: DragRef;
 
   selectedPositionElement: HTMLElement;
 
@@ -57,6 +61,7 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('positionPanel') positionPanel: PositionbarComponent;
   @ViewChild('positionBarToggle') leftToggleButton: MatButton;
   @ViewChild('deletePosition') deletePosition: ElementRef;
+  @ViewChild('ball') ball: ElementRef;
 
   @HostListener('document:keydown', ['$event'])
   handleKeyboardDownEvent(event: KeyboardEvent) {
@@ -108,6 +113,13 @@ export class AppComponent implements AfterViewInit {
     }
 
     canvas.closePath();
+
+    this.ballLocation.x = this.ball.nativeElement.getBoundingClientRect().x + (this.ball.nativeElement.offsetWidth / 2);
+    this.ballLocation.y = this.ball.nativeElement.getBoundingClientRect().y + (this.ball.nativeElement.offsetHeight / 2);
+    // this.ballLocation.x = this.ball.nativeElement.offsetLeft + (this.ball.nativeElement.offsetWidth / 2);
+    // this.ballLocation.y = this.ball.nativeElement.offsetTop + (this.ball.nativeElement.offsetHeight / 2);
+    this.initialBallLocation.x = this.ballLocation.x;
+    this.initialBallLocation.y = this.ballLocation.y;
   }
 
   constructor(
@@ -230,6 +242,8 @@ export class AppComponent implements AfterViewInit {
     this.selectedPositionElement.style.borderRadius = '50%';
     this.selectedPositionElement.style.borderColor = 'gray';
     // Weird bug where releasing the mouse while in an area that is not droppable, causes this to not fire right.
+    // This is because the selectedElement does not receive the mouseup call when the cursor
+    // is not over it. We should handle this directly with the app
     this.selectedPositionElement.addEventListener('mouseup', this.mouseup.bind(this));
     this.selectedPositionElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
     componentRef.instance.selected.subscribe((p: Position) => {
@@ -238,6 +252,10 @@ export class AppComponent implements AfterViewInit {
 
     this.handleFieldPositionSelected(position);
 
+  }
+
+  handleMouseUp() {
+    console.log('Mouse Up');
   }
 
   mouseup(event: MouseEvent) {
@@ -330,9 +348,13 @@ export class AppComponent implements AfterViewInit {
     for (const key of Array.from(this.positions.keys())) {
       this.removePosition(key);
     }
-    this.field.resetBallLocation();
     this.detailPanel.close();
     this.positionBar.open();
+    if (this.cacheBallDragReference !== undefined && this.cacheBallDragReference !== null) {
+      this.cacheBallDragReference.reset();
+      this.ballLocation.x = this.initialBallLocation.x;
+      this.ballLocation.y = this.initialBallLocation.y;
+    }
   }
 
   handleEnterDeletePosition() {
@@ -367,9 +389,26 @@ export class AppComponent implements AfterViewInit {
     return overlap;
   }
 
+  handleBallReleased(event: CdkDragRelease) {
+    this.cacheBallDragReference = event.source._dragRef;
+  }
+
+  handleBallMoved(event: CdkDragMove) {
+    this.ballLocation.x = event.source.element.nativeElement.getBoundingClientRect().left + (this.ball.nativeElement.offsetWidth / 2);
+    this.ballLocation.y = event.source.element.nativeElement.getBoundingClientRect().top + (this.ball.nativeElement.offsetHeight / 2);
+  }
+
   getSnapLocation(mouseX: number, mouseY: number): [number, number] {
     let x = mouseX;
     let y = mouseY;
+
+    if (Math.abs(mouseX - this.ballLocation.x) <= xSnapLimit && !this.checkIfLocationOverlapsPosition(this.ballLocation.x, y)) {
+      x = this.ballLocation.x;
+    }
+
+    if (Math.abs(mouseY - this.ballLocation.y) <= ySnapLimit && !this.checkIfLocationOverlapsPosition(x, this.ballLocation.y)) {
+      y = this.ballLocation.y;
+    }
 
     if (this.positions.size === 1) {
       return [x, y];
@@ -399,6 +438,10 @@ export class AppComponent implements AfterViewInit {
 
       if (Math.abs(mouseY - pY) <= ySnapLimit && !this.checkIfLocationOverlapsPosition(x, pY)) {
         y = pY;
+      }
+
+      if (x !== mouseX || y !== mouseY) {
+        break;
       }
     }
 

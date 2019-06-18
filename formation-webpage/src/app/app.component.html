@@ -18,7 +18,7 @@
             (detailBarToggled)="detailBar.toggle()"
             (resetButtonPressed)="handleReset()">
           </app-field>
-          <div #deletePosition class="deletePosition"></div>
+          <span #deletePosition class="deletePosition"></span>
         </div>
       </mat-sidenav-content>
       <mat-sidenav #detailBar class="detailNavBar"
@@ -31,5 +31,9 @@
         </div>
       </mat-sidenav>
     </mat-sidenav-container>
+    <span #ball class="ball"
+      cdkDrag
+      (cdkDragMoved)="handleBallMoved($event)"
+      (cdkDragReleased)="handleBallReleased($event)"></span>
   </div>
 </div>

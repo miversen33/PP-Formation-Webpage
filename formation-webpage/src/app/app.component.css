@@ -35,3 +35,15 @@ mat-sidenav-container{
   position: absolute;
 }
 
+.ball{
+  height: 20px;
+  width: 20px;
+  top: 40%;
+  left: 50%;
+  position: absolute;
+  user-select: none;
+  background-color: #653403;
+  border-radius: 50%;
+  display: inline-block;
+  z-index: 2;
+}
