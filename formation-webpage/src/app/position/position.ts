@@ -5,4 +5,6 @@ export class Position {
   side: string;
   x = 0;
   y = 0;
+  displayX = 0;
+  displayY = 0;
 }

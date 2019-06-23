@@ -5,7 +5,7 @@ import { PositionsService } from '../services/positions.service';
 import { MatSelectChange} from '@angular/material';
 import { Location } from '../location';
 
-const basePosition: Position = {id: 0, name: '', abbreviatedName: '', side: '', x: 0, y: 0};
+const basePosition: Position = {id: 0, name: '', abbreviatedName: '', side: '', x: 0, y: 0, displayX: 0, displayY: 0};
 
 @Component({
   selector: 'app-detailbar',
@@ -46,8 +46,8 @@ export class DetailbarComponent implements OnInit {
     }
     this.highlightedPosition = undefined;
     this.selectedPosition = position;
-    this.xValue = position.x;
-    this.yValue = position.y;
+    this.xValue = position.displayX;
+    this.yValue = position.displayY;
     if (this.selectedPosition.id === 0) {
       this.positionDetailsRef.element.nativeElement.style.visibility = 'hidden';
     } else {
@@ -67,25 +67,17 @@ export class DetailbarComponent implements OnInit {
   }
 
   handleChange() {
-    // console.log(Number(this.yInput.nativeElement.value));
-    // console.log(Number(this.xInput.nativeElement.value));
     const xCache = Number(this.xInput.nativeElement.value);
     const yCache = Number(this.yInput.nativeElement.value);
-    // console.log('!---------------------------------!');
-    // console.log(this.xValue);
-    // console.log(this.yValue);
     this.selectedPositionLocationChanged.emit({x: this.xValue - xCache, y: this.yValue - yCache});
-    this.moveSelectedPosition(xCache, yCache);
+    // this.moveSelectedPosition(xCache, yCache);
   }
 
-  moveSelectedPosition(x: number, y: number) {
-    // console.log('*---------------------------------*');
-    // console.log(this.xValue);
-    // console.log(this.yValue);
+  moveSelectedPosition(x: number, y: number, displayX: number, displayY: number) {
     x = Math.floor(x);
     y = Math.floor(y);
-    this.xValue = x;
-    this.yValue = y;
+    this.xValue = displayX;
+    this.yValue = displayY;
     this.selectedPosition.x = x;
     this.selectedPosition.y = y;
   }

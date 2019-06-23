@@ -20,7 +20,7 @@ import { Location } from './location';
 import { CdkDragMove, CdkDragRelease } from '@angular/cdk/drag-drop/typings/drag-events';
 import { DragRef } from '@angular/cdk/drag-drop';
 
-const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: '', x: 0, y: 0};
+const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: '', x: 0, y: 0, displayX: 0, displayY: 0};
 const fieldLimit = 11;
 const gridHeightLimit = 20;
 const minPlayerGap = 5;
@@ -174,7 +174,11 @@ export class AppComponent implements AfterViewInit {
 
     const x = snaps[0] - (this.selectedPositionElement.offsetWidth / 2);
     const y = snaps[1] - (this.selectedPositionElement.offsetWidth / 2);
-    this.propertiesPanel.moveSelectedPosition(x, y);
+
+    const displayX = Math.floor(snaps[0] - this.ballLocation.x);
+    const displayY = Math.floor(snaps[1] - this.ballLocation.y);
+
+    this.propertiesPanel.moveSelectedPosition(x, y, displayX, displayY);
 
     this.selectedPositionElement.style.left = this.propertiesPanel.getSelectedPosition().x + 'px';
     this.selectedPositionElement.style.top = this.propertiesPanel.getSelectedPosition().y + 'px';
