@@ -6,7 +6,7 @@ import { Component,
   HostListener,
   AfterViewInit,
   ElementRef,
-  Renderer2} from '@angular/core';
+} from '@angular/core';
 
 import { PositionsService } from './services/positions.service';
 import { DisplaypositionComponent } from './position/displayposition/displayposition.component';
@@ -28,6 +28,8 @@ const selectionColor = 'yellow';
 const deleteColor = 'red';
 const xSnapLimit = 20;
 const ySnapLimit = 15;
+const feetWidth = 160;
+const feetHeight = 120;
 
 @Component({
   selector: 'app-root',
@@ -45,6 +47,8 @@ export class AppComponent implements AfterViewInit {
   ballLocation: Location = new Location();
   initialBallLocation: Location = new Location();
   cacheBallDragReference: DragRef;
+  feetWidthConversion = 1;
+  feetHeightConversion = 1;
 
   selectedPositionElement: HTMLElement;
 
@@ -113,11 +117,11 @@ export class AppComponent implements AfterViewInit {
     }
 
     canvas.closePath();
+    this.feetWidthConversion = grid.offsetWidth / feetWidth;
+    this.feetHeightConversion = grid.offsetHeight / feetHeight;
 
     this.ballLocation.x = this.ball.nativeElement.getBoundingClientRect().x + (this.ball.nativeElement.offsetWidth / 2);
     this.ballLocation.y = this.ball.nativeElement.getBoundingClientRect().y + (this.ball.nativeElement.offsetHeight / 2);
-    // this.ballLocation.x = this.ball.nativeElement.offsetLeft + (this.ball.nativeElement.offsetWidth / 2);
-    // this.ballLocation.y = this.ball.nativeElement.offsetTop + (this.ball.nativeElement.offsetHeight / 2);
     this.initialBallLocation.x = this.ballLocation.x;
     this.initialBallLocation.y = this.ballLocation.y;
   }
@@ -175,12 +179,12 @@ export class AppComponent implements AfterViewInit {
     const x = snaps[0] - (this.selectedPositionElement.offsetWidth / 2);
     const y = snaps[1] - (this.selectedPositionElement.offsetWidth / 2);
 
-    const displayX = Math.floor(snaps[0] - this.ballLocation.x);
+    const displayX = Math.floor(snaps[0] - this.ballLocation.x) / this.feetWidthConversion;
     /**
      * Multiplying by -1 to make being north of the ball positive, and south of the ball
      * negative. This is purely for aesthetics
      */
-    const displayY = (Math.floor(snaps[1] - this.ballLocation.y) * -1 );
+    const displayY = (Math.floor(snaps[1] - this.ballLocation.y) * -1 ) / this.feetHeightConversion;
 
     this.propertiesPanel.moveSelectedPosition(x, y, displayX, displayY);
 
