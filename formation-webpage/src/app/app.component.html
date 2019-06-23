@@ -1,5 +1,6 @@
 <div #main class="main"
-  (mousemove)="handleMouseMove($event)">
+  (mousemove)="handleMouseMove($event)"
+  (mouseup)="phantomMouseUp()">
   <div #container class="container">
     <mat-sidenav-container>
       <mat-sidenav #positionBar class="positionNavBar"

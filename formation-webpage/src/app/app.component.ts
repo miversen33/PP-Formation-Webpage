@@ -176,7 +176,11 @@ export class AppComponent implements AfterViewInit {
     const y = snaps[1] - (this.selectedPositionElement.offsetWidth / 2);
 
     const displayX = Math.floor(snaps[0] - this.ballLocation.x);
-    const displayY = Math.floor(snaps[1] - this.ballLocation.y);
+    /**
+     * Multiplying by -1 to make being north of the ball positive, and south of the ball
+     * negative. This is purely for aesthetics
+     */
+    const displayY = (Math.floor(snaps[1] - this.ballLocation.y) * -1 );
 
     this.propertiesPanel.moveSelectedPosition(x, y, displayX, displayY);
 
@@ -248,9 +252,6 @@ export class AppComponent implements AfterViewInit {
     this.selectedPositionElement.style.borderWidth = '2px';
     this.selectedPositionElement.style.borderRadius = '50%';
     this.selectedPositionElement.style.borderColor = 'gray';
-    // Weird bug where releasing the mouse while in an area that is not droppable, causes this to not fire right.
-    // This is because the selectedElement does not receive the mouseup call when the cursor
-    // is not over it. We should handle this directly with the app
     this.selectedPositionElement.addEventListener('mouseup', this.mouseup.bind(this));
     this.selectedPositionElement.addEventListener('mousemove', this.handleMouseMove.bind(this));
     componentRef.instance.selected.subscribe((p: Position) => {
@@ -261,8 +262,8 @@ export class AppComponent implements AfterViewInit {
 
   }
 
-  handleMouseUp() {
-    console.log('Mouse Up');
+  phantomMouseUp() {
+    this.isMouseDown = false;
   }
 
   mouseup(event: MouseEvent) {
@@ -401,8 +402,20 @@ export class AppComponent implements AfterViewInit {
   }
 
   handleBallMoved(event: CdkDragMove) {
-    this.ballLocation.x = event.source.element.nativeElement.getBoundingClientRect().left + (this.ball.nativeElement.offsetWidth / 2);
-    this.ballLocation.y = event.source.element.nativeElement.getBoundingClientRect().top + (this.ball.nativeElement.offsetHeight / 2);
+    const cacheX = event.source.element.nativeElement.getBoundingClientRect().left + (this.ball.nativeElement.offsetWidth / 2);
+    const cacheY = event.source.element.nativeElement.getBoundingClientRect().top + (this.ball.nativeElement.offsetHeight / 2);
+    this.handleUpdateLocations(this.ballLocation.x - cacheX, this.ballLocation.y - cacheY);
+    this.ballLocation.x = cacheX;
+    this.ballLocation.y = cacheY;
+  }
+
+  handleUpdateLocations(ballChangeX: number, ballChangeY: number) {
+    for (const key of Array.from(this.positions.keys())) {
+      const position = this.positions.get(key).instance.position;
+      position.displayX -= ballChangeX;
+      position.displayY -= ballChangeY;
+    }
+    this.propertiesPanel.updateDisplayLocation(this.propertiesPanel.getSelectedPosition().displayX, this.propertiesPanel.getSelectedPosition().displayY);
   }
 
   getSnapLocation(mouseX: number, mouseY: number): [number, number] {

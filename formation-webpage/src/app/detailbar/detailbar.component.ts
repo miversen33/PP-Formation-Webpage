@@ -70,16 +70,23 @@ export class DetailbarComponent implements OnInit {
     const xCache = Number(this.xInput.nativeElement.value);
     const yCache = Number(this.yInput.nativeElement.value);
     this.selectedPositionLocationChanged.emit({x: this.xValue - xCache, y: this.yValue - yCache});
-    // this.moveSelectedPosition(xCache, yCache);
+  }
+
+  updateDisplayLocation(x: number, y: number) {
+    x = Math.floor(x);
+    y = Math.floor(y);
+    this.xValue = x;
+    this.yValue = y;
   }
 
   moveSelectedPosition(x: number, y: number, displayX: number, displayY: number) {
+    this.updateDisplayLocation(displayX, displayY);
     x = Math.floor(x);
     y = Math.floor(y);
-    this.xValue = displayX;
-    this.yValue = displayY;
     this.selectedPosition.x = x;
     this.selectedPosition.y = y;
+    this.selectedPosition.displayX = displayX;
+    this.selectedPosition.displayY = displayY;
   }
 
 }
