@@ -67,10 +67,21 @@ export class DetailbarComponent implements OnInit {
   }
 
   handleChange() {
-    this.selectedPositionLocationChanged.emit({x: this.xInput.nativeElement.value, y: this.yInput.nativeElement.value});
+    // console.log(Number(this.yInput.nativeElement.value));
+    // console.log(Number(this.xInput.nativeElement.value));
+    const xCache = Number(this.xInput.nativeElement.value);
+    const yCache = Number(this.yInput.nativeElement.value);
+    // console.log('!---------------------------------!');
+    // console.log(this.xValue);
+    // console.log(this.yValue);
+    this.selectedPositionLocationChanged.emit({x: this.xValue - xCache, y: this.yValue - yCache});
+    this.moveSelectedPosition(xCache, yCache);
   }
 
   moveSelectedPosition(x: number, y: number) {
+    // console.log('*---------------------------------*');
+    // console.log(this.xValue);
+    // console.log(this.yValue);
     x = Math.floor(x);
     y = Math.floor(y);
     this.xValue = x;

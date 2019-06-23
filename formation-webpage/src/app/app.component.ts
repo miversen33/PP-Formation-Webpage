@@ -193,12 +193,15 @@ export class AppComponent implements AfterViewInit {
     this.moveHoldPositionElement(event.x, event.y);
   }
 
-  handlePositionMoved(newLocation: Location) {
-    if (this.checkIfLocationOverlapsPosition(newLocation.x, newLocation.y)) {
+  handlePositionMoved(locationChange: Location) {
+    const checkLocation = {
+      x: this.propertiesPanel.getSelectedPosition().x + locationChange.x,
+      y: this.propertiesPanel.getSelectedPosition().y + locationChange.y};
+    if (this.checkIfLocationOverlapsPosition(checkLocation.x, checkLocation.y)) {
       return;
     }
     this.selectedPositionElement = this.positions.get(this.propertiesPanel.getSelectedPosition().id).location.nativeElement;
-    this.moveHoldPositionElement(newLocation.x, newLocation.y);
+    this.moveHoldPositionElement(checkLocation.x, checkLocation.y);
     this.selectedPositionElement = null;
   }
 
