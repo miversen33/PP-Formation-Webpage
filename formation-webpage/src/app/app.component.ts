@@ -195,7 +195,7 @@ export class AppComponent implements AfterViewInit {
     }
 
     const displayX = Math.floor(x - this.ballLocation.x + (this.selectedPositionElement.offsetWidth / 2)) / this.feetWidthConversion;
-    const displayY = Math.floor(y - this.ballLocation.y + (this.selectedPositionElement.offsetHeight / 2)) / this.feetHeightConversion;
+    const displayY = (Math.floor(y - this.ballLocation.y + (this.selectedPositionElement.offsetHeight / 2)) / this.feetHeightConversion) * -1;
 
     this.propertiesPanel.moveSelectedPosition(x, y, displayX, displayY);
 
