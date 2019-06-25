@@ -7,4 +7,5 @@ export class Position {
   y = 0;
   displayX = 0;
   displayY = 0;
+  slot = -1;
 }

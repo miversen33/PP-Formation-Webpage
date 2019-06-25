@@ -5,7 +5,7 @@ import { PositionsService } from '../services/positions.service';
 import { MatSelectChange} from '@angular/material';
 import { Location } from '../location';
 
-const basePosition: Position = {id: 0, name: '', abbreviatedName: '', side: '', x: 0, y: 0, displayX: 0, displayY: 0};
+const basePosition: Position = {id: 0, name: '', abbreviatedName: '', side: '', x: 0, y: 0, displayX: 0, displayY: 0, slot: -1};
 
 @Component({
   selector: 'app-detailbar',

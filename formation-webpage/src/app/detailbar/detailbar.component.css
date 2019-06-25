@@ -13,6 +13,17 @@
   -ms-user-select: none;
   user-select: none;
 }
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    margin: 0; 
+}
+
+input[type=number]{
+  -moz-appearance: textfield;
+}
 
 .positionDetails {
   visibility: hidden;
@@ -20,28 +31,45 @@
 }
 
 .locationHolder{
+  position: relative;
   display: flex;
   flex-direction: row;
-  width: 100%;
-  /* height: auto; */
+  width: auto;
 }
 
 .locationHeader{
   padding-right: 2px;
   padding-bottom: 1px;
+  margin-top: auto;
+  margin-bottom: auto;
 }
 
 .locationInputX{
   margin-top: auto;
   margin-bottom: auto;
   margin-left: 5px;
-  padding-right: 3px;
-  width: 50%;
+  padding-right: 5px;
+  width: auto;
+  text-align: end;
 }
 
 .locationInputY{
   margin-top: auto;
   margin-bottom: auto;
   padding-left: 5px;
-  width: 50%;
+  padding-right: 5px;
+  width: auto;
+  text-align: end;
+}
+
+.locationXFooter{
+  margin-top: auto;
+  margin-bottom: auto;
+  padding-right: 5px;
+}
+
+.locationYFooter{
+  margin-top: auto;
+  margin-bottom: auto;
+  padding-right: 20%;
 }

@@ -20,7 +20,7 @@ import { Location } from './location';
 import { CdkDragMove, CdkDragRelease } from '@angular/cdk/drag-drop/typings/drag-events';
 import { DragRef } from '@angular/cdk/drag-drop';
 
-const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: '', x: 0, y: 0, displayX: 0, displayY: 0};
+const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: '', x: 0, y: 0, displayX: 0, displayY: 0, slot: -1};
 const fieldLimit = 11;
 const gridHeightLimit = 20;
 const minPlayerGap = 5;
@@ -30,6 +30,7 @@ const xSnapLimit = 20;
 const ySnapLimit = 15;
 const feetWidth = 160;
 const feetHeight = 120;
+const VALIDATION_LIMIT = 1;
 
 @Component({
   selector: 'app-root',
@@ -312,6 +313,12 @@ export class AppComponent implements AfterViewInit {
     }
     this.deletePosition.nativeElement.style.visibility = 'hidden';
     this.selectedPositionElement = null;
+
+    if (this.positions.size === VALIDATION_LIMIT) {
+      this.field.enableValidateButton();
+    } else {
+      this.field.disableValidateButton();
+    }
   }
 
   checkIfMoveIsInDelete(left: number, top: number, right: number, bottom: number): boolean {
@@ -415,6 +422,32 @@ export class AppComponent implements AfterViewInit {
       }
     }
     return overlap;
+  }
+
+  updateSlots() {
+    for (const key of Array.from(this.positions.keys())) {
+      continue;
+    }
+  }
+
+  handleValidation() {
+    let endQueue = [];
+    let queue = [];
+    
+    for (const key of Array.from(this.positions.keys())){
+      queue.push(this.positions.get(key).instance.position);
+    }
+
+    console.log(queue);
+    let finished = false;
+    let count = 1;
+    do {
+      console.log('testing!' + count);
+      count ++;
+    }
+    while (!finished);
+
+    console.log('Validating Field, please wait');
   }
 
   handleBallReleased(event: CdkDragRelease) {

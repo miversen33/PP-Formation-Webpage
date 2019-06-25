@@ -9,7 +9,9 @@
   </div>
   <div class="detailBar">
     <p class="formationName">Enter Formation Name Here</p>
-    <button mat-raised-button class="validateButton" disabled>
+    <button mat-raised-button #validateButton class="validateButton"
+      disabled
+      (click)="handleValidateButtonPressed()">
       <p class="validateButtonTitle">Validate</p>
     </button>
     <p class="playName">Enter Play Name Here</p>

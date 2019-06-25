@@ -15,9 +15,11 @@ export class FieldComponent implements OnInit {
   @Output() resetButtonPressed = new EventEmitter();
   @Output() fieldClicked = new EventEmitter<MouseEvent>();
   @Output() ballMoved = new EventEmitter<Location>();
+  @Output() validatePressed = new EventEmitter();
 
   @ViewChild('positionBarToggle') positionToggleButton: MatButton;
   @ViewChild('detailBarToggle') detailToggleButton: MatButton;
+  @ViewChild('validateButton') validateButton: MatButton;
   @ViewChild('grid') grid: ElementRef;
   @ViewChild('field') field: ElementRef;
 
@@ -90,5 +92,18 @@ export class FieldComponent implements OnInit {
   enablePositionButton() {
     this.positionToggleButton.disabled = false;
   }
+
+  enableValidateButton() {
+    this.validateButton.disabled = false;
+  }
+
+  disableValidateButton() {
+    this.validateButton.disabled = true;
+  }
+
+  handleValidateButtonPressed() {
+    this.validatePressed.emit();
+  }
+
 }
 

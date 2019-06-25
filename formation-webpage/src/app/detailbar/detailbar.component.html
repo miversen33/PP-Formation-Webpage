@@ -24,13 +24,18 @@
             (change)="handleChange()"
             [(value)]="xValue">
         </div>
-        <h3>,</h3>
+        <span class="locationXFooter"><h3>ft</h3></span>
+        <span><h3>,</h3></span>
         <div class="locationInputY">
           <input matInput #yInput
             type="number"
             (change)="handleChange()"
             [(value)]="yValue">
         </div>
+        <span class="locationYFooter"><h3>ft</h3></span>
+    </div>
+    <div class="slotHolder">
+      <h3>Slot</h3>
     </div>
   </div>
   <div class="version">
