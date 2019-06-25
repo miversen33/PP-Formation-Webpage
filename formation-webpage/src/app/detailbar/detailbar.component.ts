@@ -69,7 +69,12 @@ export class DetailbarComponent implements OnInit {
   handleChange() {
     const xCache = Number(this.xInput.nativeElement.value);
     const yCache = Number(this.yInput.nativeElement.value);
-    this.selectedPositionLocationChanged.emit({x: this.xValue - xCache, y: this.yValue - yCache});
+    /**
+     * Multiplying by -1 to get the desired difference
+     */
+    const xDiff = (this.xValue - xCache) * -1;
+    const yDiff = this.yValue - yCache;
+    this.selectedPositionLocationChanged.emit({x: xDiff, y: yDiff});
   }
 
   updateDisplayLocation(x: number, y: number) {

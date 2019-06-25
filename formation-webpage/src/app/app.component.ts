@@ -140,9 +140,9 @@ export class AppComponent implements AfterViewInit {
     if (!this.shiftHandled && this.positions.size < fieldLimit && this.shiftBeingHeld) {
       this.shiftHandled = true;
       this.cloneSelectedPosition();
-      this.moveHoldPositionElement(event.clientX, event.clientY);
+      this.moveHoldPositionElement(event.clientX, event.clientY, false);
     } else {
-      this.moveHoldPositionElement(event.clientX, event.clientY);
+      this.moveHoldPositionElement(event.clientX, event.clientY, false);
     }
 
     this.deletePosition.nativeElement.style.visibility = 'visible';
@@ -166,30 +166,46 @@ export class AppComponent implements AfterViewInit {
     this.createPosition(positionClone);
   }
 
-  moveHoldPositionElement(inX: number, inY: number) {
+  moveHoldPositionElement(inX: number, inY: number, manuallyMoved: boolean) {
     if (this.selectedPositionElement === null || this.selectedPositionElement === undefined) {
       return;
     }
-    const snaps = this.getSnapLocation(inX, inY);
+
+    const snaps = this.getSnapLocation(inX, inY, (manuallyMoved || this.controlBeingHeld));
 
     if (snaps === undefined) {
       return;
     }
 
-    const x = snaps[0] - (this.selectedPositionElement.offsetWidth / 2);
-    const y = snaps[1] - (this.selectedPositionElement.offsetWidth / 2);
+    let x = inX;
+    let y = inY;
 
-    const displayX = Math.floor(snaps[0] - this.ballLocation.x) / this.feetWidthConversion;
-    /**
-     * Multiplying by -1 to make being north of the ball positive, and south of the ball
-     * negative. This is purely for aesthetics
-     */
-    const displayY = (Math.floor(snaps[1] - this.ballLocation.y) * -1 ) / this.feetHeightConversion;
+    if (inX !== this.propertiesPanel.getSelectedPosition().x) {
+      x = snaps[0];
+      if (!manuallyMoved) {
+        x -= (this.selectedPositionElement.offsetWidth / 2);
+      }
+    }
+
+    if (inY !== this.propertiesPanel.getSelectedPosition().y ) {
+      y = snaps[1];
+      if (!manuallyMoved) {
+        y -= (this.selectedPositionElement.offsetHeight / 2);
+      }
+    }
+
+    const displayX = Math.floor(x - this.ballLocation.x + (this.selectedPositionElement.offsetWidth / 2)) / this.feetWidthConversion;
+    const displayY = Math.floor(y - this.ballLocation.y + (this.selectedPositionElement.offsetHeight / 2)) / this.feetHeightConversion;
 
     this.propertiesPanel.moveSelectedPosition(x, y, displayX, displayY);
 
     this.selectedPositionElement.style.left = this.propertiesPanel.getSelectedPosition().x + 'px';
     this.selectedPositionElement.style.top = this.propertiesPanel.getSelectedPosition().y + 'px';
+
+
+    if (this.selectedPositionElement === null || this.selectedPositionElement === undefined) {
+      return;
+    }
   }
 
   handlePositionSelected(event: PositionSelector) {
@@ -202,7 +218,7 @@ export class AppComponent implements AfterViewInit {
     this.incrementedId ++;
     this.createPosition(pCopy);
 
-    this.moveHoldPositionElement(event.x, event.y);
+    this.moveHoldPositionElement(event.x, event.y, false);
   }
 
   handlePositionMoved(locationChange: Location) {
@@ -213,7 +229,7 @@ export class AppComponent implements AfterViewInit {
       return;
     }
     this.selectedPositionElement = this.positions.get(this.propertiesPanel.getSelectedPosition().id).location.nativeElement;
-    this.moveHoldPositionElement(checkLocation.x, checkLocation.y);
+    this.moveHoldPositionElement(checkLocation.x, checkLocation.y, true);
     this.selectedPositionElement = null;
   }
 
@@ -422,7 +438,7 @@ export class AppComponent implements AfterViewInit {
     this.propertiesPanel.updateDisplayLocation(this.propertiesPanel.getSelectedPosition().displayX, this.propertiesPanel.getSelectedPosition().displayY);
   }
 
-  getSnapLocation(mouseX: number, mouseY: number): [number, number] {
+  getSnapLocation(mouseX: number, mouseY: number, ignoreSnaps: boolean): [number, number] {
     let x = mouseX;
     let y = mouseY;
 
@@ -469,7 +485,7 @@ export class AppComponent implements AfterViewInit {
       }
     }
 
-    if (this.controlBeingHeld) {
+    if (ignoreSnaps) {
       x = mouseX;
       y = mouseY;
     }
