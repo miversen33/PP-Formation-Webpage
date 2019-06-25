@@ -46,8 +46,8 @@ export class DetailbarComponent implements OnInit {
     }
     this.highlightedPosition = undefined;
     this.selectedPosition = position;
-    this.xValue = position.displayX;
-    this.yValue = position.displayY;
+    this.xValue = Math.floor(position.displayX);
+    this.yValue = Math.floor(position.displayY);
     if (this.selectedPosition.id === 0) {
       this.positionDetailsRef.element.nativeElement.style.visibility = 'hidden';
     } else {
