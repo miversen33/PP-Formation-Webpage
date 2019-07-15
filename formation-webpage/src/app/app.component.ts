@@ -423,12 +423,6 @@ export class AppComponent implements AfterViewInit {
     return overlap;
   }
 
-  updateSlots() {
-    for (const key of Array.from(this.positions.keys())) {
-      continue;
-    }
-  }
-
   /**
    * There are much better and more efficient ways to handle this. But for now it works and that is good enough
    */
