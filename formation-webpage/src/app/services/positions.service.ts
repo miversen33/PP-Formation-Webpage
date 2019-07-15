@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { Position } from '../position/position';
 import { OFFENSIVE_POSITIONS, DEFENSIVE_POSITIONS, SPECIAL_TEAMS_POSITIONS} from './mock-positions';
+import { Position } from '../position/position';
 
 @Injectable()
 export class PositionsService {
@@ -21,19 +21,6 @@ export class PositionsService {
 
   getPositions(): Position[] {
     return this.getOffensivePositions().concat(this.getDefensivePositions(), this.getSpecialTeamsPositions());
-  }
-
-  clonePosition(position: Position, newId: number): Position {
-    return { 
-      id: newId,
-      name: position.name,
-      abbreviatedName: position.abbreviatedName,
-      side: position.side,
-      x: position.x,
-      y: position.y,
-      displayX: position.displayX,
-      displayY: position.displayY,
-      slot: position.slot};
   }
 
   getPositionLocationOnField(position: Position): [number, number] {

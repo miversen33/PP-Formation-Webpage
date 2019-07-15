@@ -10,7 +10,8 @@ import { Component,
 
 import { PositionsService } from './services/positions.service';
 import { DisplaypositionComponent } from './position/displayposition/displayposition.component';
-import { Position } from './position/position';
+// import { Position } from './position/position';
+// import {Position} from './position/position';
 import { MatSidenav, MatAccordion, MatButton } from '@angular/material';
 import { PositionbarComponent } from './positionbar/positionbar.component';
 import { PositionSelector } from './positionbar/positionSelector';
@@ -19,8 +20,10 @@ import { FieldComponent } from './field/field.component';
 import { Location } from './location';
 import { CdkDragMove, CdkDragRelease } from '@angular/cdk/drag-drop/typings/drag-events';
 import { DragRef } from '@angular/cdk/drag-drop';
+import { Position } from './position/position';
 
-const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: '', x: 0, y: 0, displayX: 0, displayY: 0, slot: -1};
+const basePosition: Position = new Position(0, '', '', '');
+// const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: '', x: 0, y: 0, displayX: 0, displayY: 0, slot: -1};
 const fieldLimit = 11;
 const gridHeightLimit = 20;
 const minPlayerGap = 5;
@@ -30,7 +33,7 @@ const xSnapLimit = 20;
 const ySnapLimit = 15;
 const feetWidth = 160;
 const feetHeight = 120;
-const VALIDATION_LIMIT = 1;
+const VALIDATION_LIMIT = 4;
 
 @Component({
   selector: 'app-root',
@@ -162,7 +165,7 @@ export class AppComponent implements AfterViewInit {
   }
 
   cloneSelectedPosition() {
-    const positionClone = this.positionService.clonePosition(this.propertiesPanel.getSelectedPosition(), this.incrementedId);
+    const positionClone = this.propertiesPanel.getSelectedPosition().clone(this.incrementedId);
     this.incrementedId ++;
     this.createPosition(positionClone);
   }
@@ -215,7 +218,7 @@ export class AppComponent implements AfterViewInit {
     }
     this.isMouseDown = true;
 
-    const pCopy: Position = this.positionService.clonePosition(event.position, this.incrementedId);
+    const pCopy: Position = event.position.clone(this.incrementedId);
     this.incrementedId ++;
     this.createPosition(pCopy);
 
@@ -434,20 +437,36 @@ export class AppComponent implements AfterViewInit {
     let endQueue = [];
     let queue = [];
     
-    for (const key of Array.from(this.positions.keys())){
+    for (const key of Array.from(this.positions.keys())) {
       queue.push(this.positions.get(key).instance.position);
     }
 
     console.log(queue);
-    let finished = false;
-    let count = 1;
-    do {
-      console.log('testing!' + count);
-      count ++;
-    }
-    while (!finished);
-
+    console.log('-----------');
     console.log('Validating Field, please wait');
+    const cycleLimit = 100;
+    let cycleCount = 0;
+    let finished = true;
+    do {
+      cycleCount ++;
+      console.log(`Cycle Count is ${cycleCount}`);
+      if (cycleCount >= cycleLimit) {
+        console.log('Cycle Limit Breached!!!');
+      }
+      for (let i = 0; i < queue.length - 1; i ++) {
+        const currentPosition: Position = queue[i];
+        const comparePosition: Position = queue[i + 1];
+        const compValue = currentPosition.compareTo(comparePosition);
+        if (compValue === 1) {
+          finished = false;
+          [queue[i], queue[i + 1]] = [queue[i + 1], queue[i]];
+        }
+      }
+    } while (cycleCount < cycleLimit || !finished);
+    if (cycleCount >= cycleLimit) {
+      console.log('Cycle Limit Breached. Breaking Loop');
+    }
+    console.log(queue);
   }
 
   handleBallReleased(event: CdkDragRelease) {

@@ -1,11 +1,12 @@
 import { Component, OnInit, ViewChild, ViewContainerRef, ElementRef, Output, EventEmitter } from '@angular/core';
 import { VersionFetcherService } from '../services/verionfetcher.service';
-import { Position } from '../position/position';
 import { PositionsService } from '../services/positions.service';
 import { MatSelectChange} from '@angular/material';
 import { Location } from '../location';
+import { AbstractWebDriver } from 'protractor/built/browser';
+import { Position } from '../position/position';
 
-const basePosition: Position = {id: 0, name: '', abbreviatedName: '', side: '', x: 0, y: 0, displayX: 0, displayY: 0, slot: -1};
+const basePosition: Position = new Position(0, '', '', '');
 
 @Component({
   selector: 'app-detailbar',

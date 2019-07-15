@@ -14,7 +14,7 @@ export class DisplaypositionComponent implements OnInit {
 
   constructor() { }
 
-  private handleMouseDown() {
+  handleMouseDown() {
     this.selected.emit(this.position);
   }
 
