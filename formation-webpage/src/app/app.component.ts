@@ -18,6 +18,7 @@ import { Location } from './location';
 import { CdkDragMove, CdkDragRelease } from '@angular/cdk/drag-drop/typings/drag-events';
 import { DragRef } from '@angular/cdk/drag-drop';
 import { Position } from './position/position';
+import { PlayValidationService } from './services/play-validation.service';
 
 const basePosition: Position = new Position(0, '', '', '');
 // const basePosition: Position = { id: 0, name: '', abbreviatedName: '', side: '', x: 0, y: 0, displayX: 0, displayY: 0, slot: -1};
@@ -128,7 +129,8 @@ export class AppComponent implements AfterViewInit {
   }
 
   constructor(
-    private componentFactoryResolver: ComponentFactoryResolver) {
+    private componentFactoryResolver: ComponentFactoryResolver,
+    private playValidator: PlayValidationService) {
   }
 
   handleMouseMove(event: MouseEvent) {
@@ -423,63 +425,14 @@ export class AppComponent implements AfterViewInit {
     return overlap;
   }
 
-  /**
-   * There are much better and more efficient ways to handle this. But for now it works and that is good enough
-   */
-  /**
-   * This could probably be better handled in a service
-   */
   handleValidation() {
     const queue = [];
     for (const key of Array.from(this.positions.keys())) {
       queue.push(this.positions.get(key).instance.position);
     }
 
-    const NORTH_OF_BALL = 'NORTH';
-    const SOUTH_OF_BALL = 'SOUTH';
-    const cycleLimit = 50;
-    let cycleCount = 0;
-    let finished;
-    let sideOfBall = '';
-    do {
-      cycleCount ++;
-      finished = true;
-      /**
-       * This is a quick catch in case we get stuck in a recursion loop.
-       */
-      if (cycleCount >= cycleLimit) {
-        break;
-      }
-
-      for (let i = 0; i < queue.length - 1; i ++) {
-        const currentPosition: Position = queue[i];
-        const comparePosition: Position = queue[i + 1];
-        const currentSideOfBall = currentPosition.y > this.ballLocation.y ? SOUTH_OF_BALL : NORTH_OF_BALL;
-        if (sideOfBall === '') {
-          sideOfBall = currentSideOfBall;
-        }
-        if (currentSideOfBall !== sideOfBall) {
-          console.log('Cannot finish validation as the players are not on the same side of the ball. Please correct and try again');
-          cycleCount = cycleLimit;
-          break;
-        }
-
-        let compValue = currentPosition.compareX(comparePosition);
-        if (compValue === 0) {
-          compValue = currentPosition.compareY(comparePosition, sideOfBall === NORTH_OF_BALL);
-        }
-        if (compValue === 1) {
-          finished = false;
-          [queue[i], queue[i + 1]] = [queue[i + 1], queue[i]];
-        }
-      }
-  } while (!finished);
-    for (let i = 0; i < queue.length; i++) {
-      queue[i].slot = i;
-    }
-    if (cycleCount >= cycleLimit) {
-      console.log('Breaking Validation due to being stuck in loop. Validation Failed. Please file bug report at https://github.com/miversen33/PP-Formation-Webpage/issues');
-    }
+    const validated: boolean = this.playValidator.handleValidation(queue, this.ballLocation);
+    console.log(`Was Play Successfully Validated? ${validated}`);
   }
 
   handleBallReleased(event: CdkDragRelease) {
