@@ -439,17 +439,19 @@ export class AppComponent implements AfterViewInit {
     const SOUTH_OF_BALL = 'SOUTH';
     const cycleLimit = 50;
     let cycleCount = 0;
-    let finished = true;
+    let finished;
     let sideOfBall = '';
     do {
       cycleCount ++;
+      finished = true;
       /**
        * This is a quick catch in case we get stuck in a recursion loop.
        */
       if (cycleCount >= cycleLimit) {
         break;
       }
-      for (let i = 0; i < queue.length - 2; i ++) {
+
+      for (let i = 0; i < queue.length - 1; i ++) {
         const currentPosition: Position = queue[i];
         const comparePosition: Position = queue[i + 1];
         const currentSideOfBall = currentPosition.y > this.ballLocation.y ? SOUTH_OF_BALL : NORTH_OF_BALL;
@@ -462,13 +464,16 @@ export class AppComponent implements AfterViewInit {
           break;
         }
 
-        const compValue = currentPosition.compareTo(comparePosition, sideOfBall === NORTH_OF_BALL);
+        let compValue = currentPosition.compareX(comparePosition);
+        if (compValue === 0) {
+          compValue = currentPosition.compareY(comparePosition, sideOfBall === NORTH_OF_BALL);
+        }
         if (compValue === 1) {
           finished = false;
           [queue[i], queue[i + 1]] = [queue[i + 1], queue[i]];
         }
       }
-    } while (cycleCount < cycleLimit || !finished);
+  } while (!finished);
     for (let i = 0; i < queue.length; i++) {
       queue[i].slot = i;
     }

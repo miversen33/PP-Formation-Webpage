@@ -45,24 +45,29 @@ export class Position {
    * Must return -1 if this object is 'less than' other, +1 if it is
    * 'greater than' other, or 0 if they are equal
    */
-  compareTo(position: Position, northOfBall: boolean): number {
+  compareX(position: Position): number {
     if (this.x < position.x) {
       return -1;
     }
     if (this.x > position.x) {
       return 1;
     }
-    if (this.y < position.y) {
+    return 0;
+  }
+
+  compareY(position: Position, northOfBall: boolean): number {
+    if (this.y > position.y) {
       if (northOfBall) {
         return -1;
       } else {
         return 1;
       }
-    }
-    if (northOfBall) {
-      return 1;
     } else {
-      return -1;
+      if (northOfBall) {
+        return 1;
+      } else {
+        return -1;
+      }
     }
   }
 }

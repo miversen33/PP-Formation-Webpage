@@ -25,6 +25,7 @@ export class FieldComponent implements OnInit {
 
   detailButtonToggle = '<';
   positionButtonToggle = '<';
+  validationButtonTitle = 'Validate';
 
   constructor() { }
 
