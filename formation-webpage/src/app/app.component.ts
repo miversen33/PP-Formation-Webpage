@@ -26,12 +26,11 @@ const fieldLimit = 11;
 const gridHeightLimit = 20;
 const minPlayerGap = 5;
 const selectionColor = 'yellow';
-const deleteColor = 'red';
 const xSnapLimit = 20;
 const ySnapLimit = 15;
 const feetWidth = 160;
 const feetHeight = 120;
-const VALIDATION_LIMIT = 4;
+const VALIDATION_LIMIT = 11;
 
 @Component({
   selector: 'app-root',
@@ -67,6 +66,7 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('positionPanel') positionPanel: PositionbarComponent;
   @ViewChild('positionBarToggle') leftToggleButton: MatButton;
   @ViewChild('deletePosition') deletePosition: ElementRef;
+  @ViewChild('deletePositionShader') deletePositionShader: ElementRef;
   @ViewChild('ball') ball: ElementRef;
 
   @HostListener('document:keydown', ['$event'])
@@ -155,10 +155,11 @@ export class AppComponent implements AfterViewInit {
     const curBottom = this.selectedPositionElement.offsetHeight + curTop;
     if (this.checkIfMoveIsInDelete(curLeft, curTop, curRight, curBottom)) {
       this.pendingDelete = true;
-      this.deletePosition.nativeElement.style.backgroundColor = 'red';
+      this.deletePositionShader.nativeElement.style.visibility = 'visible';
     } else {
       this.pendingDelete = false;
-      this.deletePosition.nativeElement.style.backgroundColor = 'blue';
+      this.deletePosition.nativeElement.style.backgroundColor = '';
+      this.deletePositionShader.nativeElement.style.visibility = 'hidden';
     }
   }
 
@@ -309,7 +310,9 @@ export class AppComponent implements AfterViewInit {
     }
 
     if (this.pendingDelete) {
-      this.deletePosition.nativeElement.style.backgroundColor = 'blue';
+      // this.deletePosition.nativeElement.style.backgroundImage ='../assets/images/trashCan.png';
+      this.deletePosition.nativeElement.style.backgroundColor = '';
+      this.deletePositionShader.nativeElement.style.visibility = 'hidden';
       this.removeSelectedPosition();
     }
     this.deletePosition.nativeElement.style.visibility = 'hidden';
@@ -395,12 +398,13 @@ export class AppComponent implements AfterViewInit {
 
   handleEnterDeletePosition() {
     this.pendingDelete = true;
-    this.deletePosition.nativeElement.style.backgroundColor = 'red';
+    this.deletePositionShader.nativeElement.visibility = 'visible';
   }
 
   handleExitDeletePosition() {
     this.pendingDelete = false;
-    this.deletePosition.nativeElement.style.backgroundColor = 'blue';
+    this.deletePosition.nativeElement.style.backgroundColor = '';
+    this.deletePositionShader.nativeElement.style.visibility = 'hidden';
   }
 
   checkIfLocationOverlapsPosition(xPosition: number, yPosition: number): boolean {
@@ -432,7 +436,6 @@ export class AppComponent implements AfterViewInit {
     }
 
     const validated: boolean = this.playValidator.handleValidation(queue, this.ballLocation);
-    console.log(`Was Play Successfully Validated? ${validated}`);
   }
 
   handleBallReleased(event: CdkDragRelease) {

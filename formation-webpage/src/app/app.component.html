@@ -20,7 +20,10 @@
             (resetButtonPressed)="handleReset()"
             (validatePressed)="handleValidation()">
           </app-field>
-          <span #deletePosition class="deletePosition"></span>
+          <div>
+            <img #deletePosition class="deletePosition" src="/assets/images/trashCan.png"/>
+            <span #deletePositionShader class="deletePositionShader"></span>
+          </div>
         </div>
       </mat-sidenav-content>
       <mat-sidenav #detailBar class="detailNavBar"
