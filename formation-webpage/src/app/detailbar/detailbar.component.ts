@@ -26,6 +26,7 @@ export class DetailbarComponent implements OnInit {
   highlightedPosition = undefined;
   xValue: number;
   yValue: number;
+  slot: number;
 
   constructor(
     private versionService: VersionFetcherService,
@@ -49,6 +50,7 @@ export class DetailbarComponent implements OnInit {
     this.selectedPosition = position;
     this.xValue = Math.floor(position.displayX);
     this.yValue = Math.floor(position.displayY);
+    this.slot = position.slot;
     if (this.selectedPosition.id === 0) {
       this.positionDetailsRef.element.nativeElement.style.visibility = 'hidden';
     } else {

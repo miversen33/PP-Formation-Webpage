@@ -7,7 +7,7 @@ export class Position {
   y = 0;
   displayX = 0;
   displayY = 0;
-  slot = -1;
+  slot: number ;
 
   constructor(id: number, name: string, abbreviatedName: string, side: string) {
     this.id = id;
@@ -53,8 +53,8 @@ export class Position {
       return 1;
     }
     if (this.y < position.y) {
-      return 1;
+      return -1;
     }
-    return -1;
+    return 1;
   }
 }

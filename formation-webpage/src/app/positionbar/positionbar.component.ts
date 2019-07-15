@@ -2,6 +2,7 @@ import { Component, OnInit, Output, EventEmitter, ViewChild } from '@angular/cor
 import { PositionsService } from '../services/positions.service';
 import { PositionSelector } from './positionSelector';
 import { MatExpansionPanel } from '@angular/material';
+import { Position } from '../position/position';
 
 @Component({
   selector: 'app-positionbar',

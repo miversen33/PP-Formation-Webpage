@@ -8,10 +8,7 @@ import { Component,
   ElementRef,
 } from '@angular/core';
 
-import { PositionsService } from './services/positions.service';
 import { DisplaypositionComponent } from './position/displayposition/displayposition.component';
-// import { Position } from './position/position';
-// import {Position} from './position/position';
 import { MatSidenav, MatAccordion, MatButton } from '@angular/material';
 import { PositionbarComponent } from './positionbar/positionbar.component';
 import { PositionSelector } from './positionbar/positionSelector';
@@ -131,7 +128,6 @@ export class AppComponent implements AfterViewInit {
   }
 
   constructor(
-    private positionService: PositionsService,
     private componentFactoryResolver: ComponentFactoryResolver) {
   }
 
@@ -433,27 +429,24 @@ export class AppComponent implements AfterViewInit {
     }
   }
 
+  /**
+   * There are much better and more efficient ways to handle this. But for now it works and that is good enough
+   */
   handleValidation() {
-    let endQueue = [];
-    let queue = [];
-    
+    const queue = [];
     for (const key of Array.from(this.positions.keys())) {
       queue.push(this.positions.get(key).instance.position);
     }
 
-    console.log(queue);
-    console.log('-----------');
-    console.log('Validating Field, please wait');
-    const cycleLimit = 100;
+    const cycleLimit = 50;
     let cycleCount = 0;
     let finished = true;
     do {
       cycleCount ++;
-      console.log(`Cycle Count is ${cycleCount}`);
       if (cycleCount >= cycleLimit) {
-        console.log('Cycle Limit Breached!!!');
+        break;
       }
-      for (let i = 0; i < queue.length - 1; i ++) {
+      for (let i = 0; i < queue.length - 2; i ++) {
         const currentPosition: Position = queue[i];
         const comparePosition: Position = queue[i + 1];
         const compValue = currentPosition.compareTo(comparePosition);
@@ -463,8 +456,10 @@ export class AppComponent implements AfterViewInit {
         }
       }
     } while (cycleCount < cycleLimit || !finished);
-    if (cycleCount >= cycleLimit) {
-      console.log('Cycle Limit Breached. Breaking Loop');
+    for (let i = 0; i < queue.length; i++) {
+      const position: Position = queue[i];
+      console.log(`Setting ${position.name} slot to ${i}`);
+      position.slot = i;
     }
     console.log(queue);
   }
