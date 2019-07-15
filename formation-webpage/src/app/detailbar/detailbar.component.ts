@@ -3,7 +3,6 @@ import { VersionFetcherService } from '../services/verionfetcher.service';
 import { PositionsService } from '../services/positions.service';
 import { MatSelectChange} from '@angular/material';
 import { Location } from '../location';
-import { AbstractWebDriver } from 'protractor/built/browser';
 import { Position } from '../position/position';
 
 const basePosition: Position = new Position(0, '', '', '');

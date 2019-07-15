@@ -432,24 +432,43 @@ export class AppComponent implements AfterViewInit {
   /**
    * There are much better and more efficient ways to handle this. But for now it works and that is good enough
    */
+  /**
+   * This could probably be better handled in a service
+   */
   handleValidation() {
     const queue = [];
     for (const key of Array.from(this.positions.keys())) {
       queue.push(this.positions.get(key).instance.position);
     }
 
+    const NORTH_OF_BALL = 'NORTH';
+    const SOUTH_OF_BALL = 'SOUTH';
     const cycleLimit = 50;
     let cycleCount = 0;
     let finished = true;
+    let sideOfBall = '';
     do {
       cycleCount ++;
+      /**
+       * This is a quick catch in case we get stuck in a recursion loop.
+       */
       if (cycleCount >= cycleLimit) {
         break;
       }
       for (let i = 0; i < queue.length - 2; i ++) {
         const currentPosition: Position = queue[i];
         const comparePosition: Position = queue[i + 1];
-        const compValue = currentPosition.compareTo(comparePosition);
+        const currentSideOfBall = currentPosition.y > this.ballLocation.y ? SOUTH_OF_BALL : NORTH_OF_BALL;
+        if (sideOfBall === '') {
+          sideOfBall = currentSideOfBall;
+        }
+        if (currentSideOfBall !== sideOfBall) {
+          console.log('Cannot finish validation as the players are not on the same side of the ball. Please correct and try again');
+          cycleCount = cycleLimit;
+          break;
+        }
+
+        const compValue = currentPosition.compareTo(comparePosition, sideOfBall === NORTH_OF_BALL);
         if (compValue === 1) {
           finished = false;
           [queue[i], queue[i + 1]] = [queue[i + 1], queue[i]];
@@ -457,11 +476,11 @@ export class AppComponent implements AfterViewInit {
       }
     } while (cycleCount < cycleLimit || !finished);
     for (let i = 0; i < queue.length; i++) {
-      const position: Position = queue[i];
-      console.log(`Setting ${position.name} slot to ${i}`);
-      position.slot = i;
+      queue[i].slot = i;
     }
-    console.log(queue);
+    if (cycleCount >= cycleLimit) {
+      console.log('Breaking Validation due to being stuck in loop. Validation Failed. Please file bug report at https://github.com/miversen33/PP-Formation-Webpage/issues');
+    }
   }
 
   handleBallReleased(event: CdkDragRelease) {
