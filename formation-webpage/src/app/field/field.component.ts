@@ -1,8 +1,9 @@
 import { Component, OnInit, Output, EventEmitter, ViewChild, ElementRef, AfterViewInit, Renderer2 } from '@angular/core';
 import { MatButton } from '@angular/material';
 import { Location } from '../location';
-import { CdkDragRelease } from '@angular/cdk/drag-drop';
 
+const VALIDATION_TITLE = 'Validate';
+const SAVE_TITLE = 'Save';
 @Component({
   selector: 'app-field',
   templateUrl: './field.component.html',
@@ -25,7 +26,7 @@ export class FieldComponent implements OnInit {
 
   detailButtonToggle = '<';
   positionButtonToggle = '<';
-  validationButtonTitle = 'Validate';
+  validationButtonTitle = VALIDATION_TITLE;
 
   constructor() { }
 
@@ -96,10 +97,16 @@ export class FieldComponent implements OnInit {
 
   enableValidateButton() {
     this.validateButton.disabled = false;
+    this.validationButtonTitle = VALIDATION_TITLE;
+  }
+
+  flipValidateButton() {
+    this.validationButtonTitle = SAVE_TITLE;
   }
 
   disableValidateButton() {
     this.validateButton.disabled = true;
+    this.validationButtonTitle = VALIDATION_TITLE;
   }
 
   handleValidateButtonPressed() {

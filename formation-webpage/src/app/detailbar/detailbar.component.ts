@@ -96,4 +96,8 @@ export class DetailbarComponent implements OnInit {
     this.selectedPosition.displayY = displayY;
   }
 
+  updateSlot() {
+    this.slot = this.selectedPosition.slot;
+  }
+
 }

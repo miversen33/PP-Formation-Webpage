@@ -45,6 +45,7 @@ export class AppComponent implements AfterViewInit {
   shiftHandled = false;
   controlBeingHeld = false;
   pendingDelete = false;
+  validated = false;
   ballLocation: Location = new Location();
   initialBallLocation: Location = new Location();
   cacheBallDragReference: DragRef;
@@ -138,6 +139,8 @@ export class AppComponent implements AfterViewInit {
       !this.isMouseDown || this.selectedPositionElement === undefined || this.selectedPositionElement === null) {
       return;
     }
+
+    this.invalidatePlay();
 
     if (!this.shiftHandled && this.positions.size < fieldLimit && this.shiftBeingHeld) {
       this.shiftHandled = true;
@@ -310,7 +313,6 @@ export class AppComponent implements AfterViewInit {
     }
 
     if (this.pendingDelete) {
-      // this.deletePosition.nativeElement.style.backgroundImage ='../assets/images/trashCan.png';
       this.deletePosition.nativeElement.style.backgroundColor = '';
       this.deletePositionShader.nativeElement.style.visibility = 'hidden';
       this.removeSelectedPosition();
@@ -318,7 +320,7 @@ export class AppComponent implements AfterViewInit {
     this.deletePosition.nativeElement.style.visibility = 'hidden';
     this.selectedPositionElement = null;
 
-    if (this.positions.size === VALIDATION_LIMIT) {
+    if (this.positions.size === VALIDATION_LIMIT && this.checkValidation()) {
       this.field.enableValidateButton();
     } else {
       this.field.disableValidateButton();
@@ -387,6 +389,7 @@ export class AppComponent implements AfterViewInit {
     for (const key of Array.from(this.positions.keys())) {
       this.removePosition(key);
     }
+    this.field.disableValidateButton();
     this.detailPanel.close();
     this.positionBar.open();
     if (this.cacheBallDragReference !== undefined && this.cacheBallDragReference !== null) {
@@ -430,19 +433,41 @@ export class AppComponent implements AfterViewInit {
   }
 
   handleValidation() {
+    if (this.checkValidation()) {
+      this.validatePlay();
+    }
+  }
+
+  checkValidation(): boolean {
     const queue = [];
     for (const key of Array.from(this.positions.keys())) {
       queue.push(this.positions.get(key).instance.position);
     }
 
-    const validated: boolean = this.playValidator.handleValidation(queue, this.ballLocation);
+    const valid: boolean = this.playValidator.handleValidation(queue, this.ballLocation);
+    this.propertiesPanel.updateSlot();
+    return valid;
+  }
+
+  invalidatePlay() {
+    this.validated = false;
+    this.field.disableValidateButton();
+  }
+
+  validatePlay() {
+    this.validated = true;
+    this.field.flipValidateButton();
   }
 
   handleBallReleased(event: CdkDragRelease) {
     this.cacheBallDragReference = event.source._dragRef;
+    if (this.checkValidation()) {
+      this.field.enableValidateButton();
+    }
   }
 
   handleBallMoved(event: CdkDragMove) {
+    this.invalidatePlay();
     const cacheX = event.source.element.nativeElement.getBoundingClientRect().left + (this.ball.nativeElement.offsetWidth / 2);
     const cacheY = event.source.element.nativeElement.getBoundingClientRect().top + (this.ball.nativeElement.offsetHeight / 2);
     this.handleUpdateLocations(this.ballLocation.x - cacheX, this.ballLocation.y - cacheY);
