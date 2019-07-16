@@ -51,6 +51,8 @@ export class AppComponent implements AfterViewInit {
   cacheBallDragReference: DragRef;
   feetWidthConversion = 1;
   feetHeightConversion = 1;
+  cachePositionWidth = 0;
+  cachePositionHeight = 0;
 
   selectedPositionElement: HTMLElement;
 
@@ -228,15 +230,41 @@ export class AppComponent implements AfterViewInit {
   }
 
   handlePositionMoved(locationChange: Location) {
+    console.log(`Current X Location ${this.propertiesPanel.getSelectedPosition().x}`);
+    console.log(`Current Y Location ${this.propertiesPanel.getSelectedPosition().y}`);
+
+    console.log(`FeetWidthConversion ${this.feetWidthConversion}`);
+    console.log(`Ball X Location ${this.ballLocation.x}`);
+
+    console.log(`Change X ${locationChange.x}`);
+    console.log(`Change Y ${locationChange.x}`);
+
+    const positionOffSet = [this.getPositionSize()[0] / 2, this.getPositionSize()[1] / 2];
+    // const positionOffSet = [0,0];
+
+    console.log(`Offset X ${positionOffSet[0]}`);
+    console.log(`Offset Y ${positionOffSet[1]}`);
+    
     const checkLocation = {
-      x: this.propertiesPanel.getSelectedPosition().x + locationChange.x,
-      y: this.propertiesPanel.getSelectedPosition().y + locationChange.y};
+      x: this.propertiesPanel.getSelectedPosition().x + (locationChange.x * this.feetWidthConversion),
+      y: this.propertiesPanel.getSelectedPosition().y + (locationChange.y * this.feetHeightConversion)};
+
+    console.log(`New X Location ${checkLocation.x}`);
+    console.log(`New Y Location ${checkLocation.y}`);
+    
     if (this.checkIfLocationOverlapsPosition(checkLocation.x, checkLocation.y)) {
       return;
     }
     this.selectedPositionElement = this.positions.get(this.propertiesPanel.getSelectedPosition().id).location.nativeElement;
     this.moveHoldPositionElement(checkLocation.x, checkLocation.y, true);
     this.selectedPositionElement = null;
+  }
+
+  getPositionSize(): [number, number] {
+    return [
+      this.positions.get(this.propertiesPanel.getSelectedPosition().id).location.nativeElement.offsetWidth,
+      this.positions.get(this.propertiesPanel.getSelectedPosition().id).location.nativeElement.offsetHeight
+    ];
   }
 
   addPosition(position: Position, component: ComponentRef<DisplaypositionComponent>) {

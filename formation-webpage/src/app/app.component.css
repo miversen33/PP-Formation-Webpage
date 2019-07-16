@@ -34,11 +34,6 @@ mat-sidenav-container{
   background:rgba(255, 0, 0, 0.25);
 }
 
-/* .deletePositionShader::after {
-  display: block;
-  padding-bottom: 100%;
-} */
-
 .content{
   height: 100vh;
   width: 100%;
